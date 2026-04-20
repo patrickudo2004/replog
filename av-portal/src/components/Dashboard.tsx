@@ -297,44 +297,6 @@ export default function Dashboard() {
           />
         )}
 
-        {view === 'explore' && (
-          <motion.div 
-            key="explore"
-            initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-            className="space-y-8"
-          >
-            <div className="mb-8">
-              <h1 className="text-2xl font-bold tracking-tight">Explore</h1>
-              <p className="text-sm text-muted">Winners Chapel Manchester Resource Directory</p>
-            </div>
-            
-            <div className="grid grid-cols-1 gap-4">
-              {[
-                { name: 'Website & IT', role: 'Technical Subunit', icon: '💻' },
-                { name: 'Social Media', role: 'Content & Engagement', icon: '📱' },
-                { name: 'Sound & Audio', role: 'Live Production', icon: '🔊' },
-                { name: 'Video Control', role: 'Streaming & Broadcast', icon: '📹' }
-              ].map((item, i) => (
-                <div key={i} className="flex items-center gap-4 p-5 bg-white/40 glass rounded-[32px] border border-border group hover:bg-white/60 transition-all cursor-pointer">
-                  <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-2xl">
-                    {item.icon}
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-foreground">{item.name}</h4>
-                    <p className="text-xs text-muted">{item.role}</p>
-                  </div>
-                  <ChevronRight size={20} className="ml-auto opacity-30 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-                </div>
-              ))}
-            </div>
-
-            <div className="p-6 bg-secondary/5 border border-secondary/10 rounded-[32px] text-center">
-               <p className="text-xs font-bold text-secondary uppercase tracking-widest mb-1">Coming Soon</p>
-               <p className="text-[10px] text-muted">More subunits and resources will be added here as the portal evolves.</p>
-            </div>
-          </motion.div>
-        )}
-
         {view === 'history' && (
           <motion.div 
             key="history"
