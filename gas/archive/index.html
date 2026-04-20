@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AV Activity Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #C41230;
+      /* Winners Red */
+      --secondary: #333333;
+      /* Charcoal */
+      --accent: #FFD700;
+      /* Gold/Yellow accents if needed */
+      --bg: #F5F5F7;
+      --card-bg: rgba(255, 255, 255, 0.8);
+      --text: #1D1D1F;
+      --success: #28a745;
+      --pending: #fd7e14;
+      --urgent: #dc3545;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    header {
+      background: var(--secondary);
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    header img {
+      height: 60px;
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    header img:active {
+      transform: scale(0.95);
+    }
+
+    header h1 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    header p {
+      font-size: 0.8rem;
+      opacity: 0.8;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+
+    /* Dashboard Cards */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 1.2rem;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+      text-align: center;
+      transition: transform 0.2s;
+    }
+
+    .card:active {
+      transform: scale(0.98);
+    }
+
+    .card h2 {
+      font-size: 0.9rem;
+      color: var(--secondary);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+    }
+
+    .card .value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .card .subtitle {
+      font-size: 0.75rem;
+      color: #666;
+      margin-top: 0.2rem;
+    }
+
+    /* Navigation Buttons */
+    .nav-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.2rem;
+      border-radius: 12px;
+      border: none;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: 0.3s;
+      gap: 10px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--secondary);
+      border: 2px solid var(--secondary);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Recent Feed */
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .feed-item {
+      background: white;
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 0.8rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-left: 4px solid #eee;
+      transition: 0.3s;
+    }
+
+    .feed-item.urgent {
+      border-left-color: var(--urgent);
+      background: rgba(220, 53, 69, 0.05);
+      animation: pulse 2s infinite;
+    }
+
+    .feed-item.confirmed {
+      border-left-color: var(--success);
+    }
+
+    .feed-item.pending {
+      border-left-color: var(--pending);
+    }
+
+    .feed-item.clickable {
+      cursor: pointer;
+    }
+
+    .feed-item.clickable:active {
+      transform: scale(0.98);
+      background: #f9f9f9;
+    }
+
+    .feed-content h3 {
+      font-size: 0.95rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .feed-content p {
+      font-size: 0.75rem;
+      color: #666;
+    }
+
+    .badge {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .badge-success {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .badge-orange {
+      background: #ffe5d0;
+      color: #a0522d;
+    }
+
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4);
+      }
+
+      70% {
+        box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+      }
+    }
+
+    /* Forms */
+    .form-view {
+      display: none;
+      background: white;
+      border-radius: 20px;
+      padding: 1.5rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+      margin-bottom: 1.2rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--secondary);
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 0.8rem;
+      border-radius: 8px;
+      border: 1.5px solid #E1E1E1;
+      font-family: inherit;
+      font-size: 1rem;
+    }
+
+    input:focus {
+      border-color: var(--primary);
+      outline: none;
+    }
+
+    .urgent-toggle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .urgent-toggle input {
+      width: auto;
+    }
+
+    /* Success Screen */
+    #success-screen {
+      display: none;
+      text-align: center;
+      padding: 3rem 1rem;
+    }
+
+    #success-screen h2 {
+      color: var(--success);
+      margin-bottom: 1rem;
+    }
+
+    /* Loading Overlay */
+    #loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.9);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="loading">
+    <div class="spinner"></div>
+    <p style="margin-top: 1rem; font-weight: 600;">Processing...</p>
+  </div>
+
+  <header>
+    <div id="nav-home" style="position: absolute; left: 1rem; top: 1.5rem; cursor: pointer; font-size: 1.5rem;"
+      onclick="showView('dashboard')">🏠</div>
+    <!-- More robust direct link format for Google Drive -->
+    <img src="https://lh3.googleusercontent.com/d/1PnzuJKAgogeB4JMUPBLGEQZECTQk8BUh" alt="Church Logo" id="church-logo"
+      onclick="showView('dashboard')">
+    <h1>AV TECHNICAL PORTAL</h1>
+    <p>Winners Chapel Manchester</p>
+  </header>
+
+  <div class="container">
+
+    <!-- DASHBOARD VIEW -->
+    <div id="dashboard-view">
+      <div class="dashboard-grid">
+        <div class="card" onclick="loadVerificationList()" style="cursor: pointer;">
+          <h2>Pending Review</h2>
+          <div class="value" id="stats-pending">-</div>
+          <div class="subtitle">Awaiting confirmation</div>
+        </div>
+        <div class="card" onclick="loadTicketList()" style="cursor: pointer;">
+          <h2>Open Tickets</h2>
+          <div class="value" id="stats-tickets">-</div>
+          <div class="subtitle">Issues to resolve</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom: 2rem; display: flex; flex-direction: column; align-items: center;">
+        <div style="display: flex; gap: 2rem; width: 100%; justify-content: space-around;">
+          <div style="text-align: center;">
+            <p style="font-size: 0.8rem; color: #666;">Logs This Week</p>
+            <div class="value" id="stats-weekly" style="font-size: 1.5rem;">-</div>
+          </div>
+          <div style="text-align: center;">
+            <p style="font-size: 0.8rem; color: #666;">Active Members</p>
+            <div id="stats-members" style="font-weight: 700; color: var(--primary);">0</div>
+          </div>
+        </div>
+        <div class="subtitle" id="stats-weekly-sub" style="margin-top: 0.5rem;">Loading...</div>
+      </div>
+
+      <div class="card" style="margin-bottom: 2rem; display: flex; flex-direction: column; align-items: center;">
+        <h2>🏆 Monthly Leaderboard</h2>
+        <div id="leaderboard-list" style="width: 100%; font-size: 0.9rem; text-align: left;">
+          Loading...
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-primary" onclick="showView('log-form')">✍️ Log New Activity</button>
+        <button class="btn btn-secondary" onclick="showView('ticket-form')">🚩 Report an Issue</button>
+        <button class="btn btn-secondary" id="nav-btn-tickets" onclick="loadTicketList()">🔍 Review Reports/Issues</button>
+        <button class="btn btn-secondary" id="nav-btn-verify" onclick="loadVerificationList()">🔍 Review Pending Work</button>
+      </div>
+
+      <div class="section-title">
+        <span>Recent Feed</span>
+        <span style="font-size: 0.7rem; font-weight: 400;">Last 5 items</span>
+      </div>
+      <div id="recent-feed">
+        <!-- Feed items injected here -->
+      </div>
+    </div>
+
+    <!-- LOG ACTIVITY FORM VIEW -->
+    <div id="log-form-view" class="form-view">
+      <h2 style="margin-bottom: 1.5rem;">New Activity Log</h2>
+      <form id="activity-form">
+        <div class="form-group">
+          <label>Date of Activity</label>
+          <input type="date" name="date" required id="log-date">
+        </div>
+        <div class="form-group">
+          <label>Your Name</label>
+          <select name="worker" id="log-worker-list" required>
+            <option value="">Select your name...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select name="category" id="log-category-list" required>
+            <option value="">Select category...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Brief Activity Name (e.g., Slider Update)</label>
+          <input type="text" name="activityName" placeholder="e.g. Service Flyer Upload" required>
+        </div>
+        <div class="form-group">
+          <label>Implementation Notes</label>
+          <textarea name="implementationNotes" rows="4" placeholder="What exactly did you do?" required></textarea>
+        </div>
+        <div class="form-group">
+          <label>Screenshot / Evidence</label>
+          <input type="file" id="file-input" accept="image/*">
+          <input type="hidden" name="screenshot" id="screenshot-base64">
+        </div>
+        <div class="form-group">
+          <label class="urgent-toggle">
+            <input type="checkbox" name="isUrgent" value="true">
+            <span style="color: var(--urgent); font-weight: 700;">MARK AS URGENT?</span>
+          </label>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Submit Log</button>
+      </form>
+    </div>
+
+    <!-- VERIFICATION LIST VIEW -->
+    <div id="verify-list-view" class="form-view">
+      <h2 style="margin-bottom: 1.5rem;">Awaiting Review</h2>
+      <div id="pending-verification-list">
+        <!-- List injected here -->
+      </div>
+    </div>
+
+    <!-- VERIFICATION FORM VIEW -->
+    <div id="verify-form-view" class="form-view">
+      <h2 style="margin-bottom: 1rem;">Confirm Activity</h2>
+      <div id="verify-details"
+        style="font-size: 0.9rem; background: #f9f9f9; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+        <!-- Details injected here -->
+      </div>
+      <form id="verification-form">
+        <input type="hidden" name="id" id="verify-id">
+        <div class="form-group">
+          <label>Verified By (Your Name)</label>
+          <select name="verifier" id="verify-name-list" required>
+            <option value="">Select your name...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Verification Remark</label>
+          <textarea name="remark" rows="3" placeholder="Confirm everything is okay..." required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Verify & Complete</button>
+      </form>
+    </div>
+    <!-- TICKET FORM VIEW -->
+    <div id="ticket-form-view" class="form-view">
+      <h2 style="margin-bottom: 1.5rem;">Report Issue / Ticket</h2>
+      <form id="ticket-form">
+        <div class="form-group">
+          <label>Reported By</label>
+          <div style="display: flex; gap: 10px;">
+            <select name="reporter" id="ticket-reporter-list" style="flex: 1;">
+              <option value="">Select from members...</option>
+            </select>
+          </div>
+          <input type="text" name="customReporter" placeholder="OR type custom name here..." style="margin-top: 10px;">
+        </div>
+        <div class="form-group">
+          <label>Where is this report coming from?</label>
+          <input type="text" name="source" placeholder="e.g. Media Team, Map User, Outside" required>
+        </div>
+        <div class="form-group">
+          <label>Issue Category</label>
+          <select name="category" id="ticket-category-list" required>
+            <option value="">Select category...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Explanation of Issue</label>
+          <textarea name="description" rows="4" placeholder="Describe the problem in detail..." required></textarea>
+        </div>
+        <div class="form-group">
+          <label>Screenshots (Up to 3 - Optional)</label>
+          <input type="file" onchange="encodeImage(this, 'tkt-img-1')" accept="image/*" style="margin-bottom: 5px;">
+          <input type="file" onchange="encodeImage(this, 'tkt-img-2')" accept="image/*" style="margin-bottom: 5px;">
+          <input type="file" onchange="encodeImage(this, 'tkt-img-3')" accept="image/*">
+          <input type="hidden" name="image1" id="tkt-img-1">
+          <input type="hidden" name="image2" id="tkt-img-2">
+          <input type="hidden" name="image3" id="tkt-img-3">
+        </div>
+        <div class="form-group">
+          <label class="urgent-toggle">
+            <input type="checkbox" name="isUrgent" value="true">
+            <span style="color: var(--urgent); font-weight: 700;">URGENT ISSUE?</span>
+          </label>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Submit Ticket</button>
+      </form>
+    </div>
+
+    <!-- TICKET LIST VIEW -->
+    <div id="ticket-list-view" class="form-view">
+      <h2 style="margin-bottom: 1.5rem;">Active Tickets</h2>
+      <div id="active-ticket-list">
+        <!-- List injected here -->
+      </div>
+    </div>
+
+    <!-- TICKET RESOLUTION VIEW -->
+    <div id="ticket-resolve-view" class="form-view">
+      <h2 style="margin-bottom: 1rem;">Resolve Ticket</h2>
+      <div id="ticket-details"
+        style="font-size: 0.9rem; background: #f9f9f9; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+        <!-- Details injected here -->
+      </div>
+      <form id="ticket-resolve-form">
+        <input type="hidden" name="id" id="resolve-ticket-id">
+        <div class="form-group">
+          <label>Resolved By</label>
+          <select name="resolver" id="resolve-name-list" required>
+            <option value="">Select your name...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Resolution Notes</label>
+          <textarea name="resNotes" rows="3" placeholder="How was it fixed?" required></textarea>
+        </div>
+        <div class="form-group">
+          <label>Proof of Resolution (Screenshot)</label>
+          <input type="file" onchange="encodeImage(this, 'res-img-base64')" accept="image/*">
+          <input type="hidden" name="resImage" id="res-img-base64">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Mark as Resolved</button>
+      </form>
+    </div>
+
+    <!-- SUCCESS SCREEN -->
+    <div id="success-screen">
+      <div style="font-size: 4rem;">✅</div>
+      <h2>Successfully Submitted!</h2>
+      <p>Thank you for your service.</p>
+      <button class="btn btn-secondary" style="margin-top: 2rem; width: 100%;" onclick="showView('dashboard')">Back to
+        Dashboard</button>
+    </div>
+
+  </div>
+
+  <script>
+    // App State
+    let members = [];
+    let categories = [];
+    let cachedDashboardData = null;
+
+    // Initialize
+    window.onload = () => {
+      setDefaultDate();
+      loadDashboard();
+      fetchFormData();
+    };
+
+    // Initialize
+    window.onload = () => {
+      setDefaultDate();
+      loadDashboard();
+      fetchFormData();
+    };
+
+    function encodeImage(el, targetId) {
+      if (!el.files || !el.files[0]) return;
+      const reader = new FileReader();
+      reader.onload = (e) => document.getElementById(targetId).value = e.target.result;
+      reader.readAsDataURL(el.files[0]);
+    }
+
+    function showLoading(show) {
+      document.getElementById('loading').style.display = show ? 'flex' : 'none';
+    }
+
+    function setDefaultDate() {
+      document.getElementById('log-date').valueAsDate = new Date();
+    }
+
+    // Helper to turn a Google Drive link into an image preview link
+    function getPreviewUrl(driveUrl) {
+      if (!driveUrl) return null;
+      var match = driveUrl.match(/(file\/d\/|id=)([^?\/&]+)/);
+      return match ? "https://lh3.googleusercontent.com/d/" + match[2] : null;
+    }
+
+    function showView(viewId) {
+      document.querySelectorAll('#dashboard-view, .form-view, #success-screen').forEach(el => el.style.display = 'none');
+
+      const targetId = viewId === 'success' ? 'success-screen' : viewId + '-view';
+      const targetEl = document.getElementById(targetId);
+
+      if (targetEl) targetEl.style.display = 'block';
+      if (viewId === 'dashboard') loadDashboard(true); // Force refresh on home
+      window.scrollTo(0, 0);
+    }
+
+    // Server Calls
+    function loadDashboard(forceRefresh = false) {
+      if (cachedDashboardData && !forceRefresh) {
+        renderDashboard(cachedDashboardData);
+        return;
+      }
+
+      showLoading(true);
+      google.script.run.withSuccessHandler(data => {
+        showLoading(false);
+        cachedDashboardData = data;
+        renderDashboard(data);
+      }).getDashboardData();
+    }
+
+    function renderDashboard(data) {
+      document.getElementById('stats-pending').innerText = data.pendingCount;
+      document.getElementById('stats-tickets').innerText = data.openTicketsCount;
+      document.getElementById('stats-weekly').innerText = data.thisWeekCount;
+      document.getElementById('stats-weekly-sub').innerText = "vs " + data.lastWeekCount + " last week";
+
+      // Active Members (Count from leaderboard)
+      const topNames = data.leaderboard.map(i => i.name);
+      document.getElementById('stats-members').innerText = topNames.length;
+
+      // Leaderboard
+      var lbHtml = data.leaderboard.length ? "" : "<p style='text-align:center;'>No activity this month yet.</p>";
+      data.leaderboard.forEach(function (item, index) {
+        lbHtml += '<div style="padding: 5px 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between;">' +
+          '<span><strong>#' + (index + 1) + "</strong> " + item.name + "</span>" +
+          "<span>" + item.count + " items</span>" +
+          "</div>";
+      });
+      document.getElementById("leaderboard-list").innerHTML = lbHtml;
+
+      // Unified Live Feed
+      var feedHtml = "";
+      data.unifiedFeed.forEach(function (item) {
+        let icon = "📝";
+        let badgeText = item.status;
+        let badgeClass = "badge-orange";
+        let actionHtml = "";
+        let clickHandler = "";
+
+        if (item.type === "LOG") {
+          if (item.status === "Pending") {
+            icon = "✍️";
+            clickHandler = "openVerification('" + item.id + "')";
+            actionHtml = '<span style="color: var(--primary); font-weight:700;">REVIEW ></span>';
+          } else {
+            icon = "✅";
+            badgeClass = "badge-success";
+            badgeText = "LOGGED";
+          }
+        } else if (item.type === "TICKET") {
+          if (item.status === "Pending") {
+            icon = "🚩";
+            clickHandler = "openTicketResolve('" + item.id + "')";
+            actionHtml = '<span style="color: var(--primary); font-weight:700;">FIX ></span>';
+          } else {
+            icon = "🛠️";
+            badgeClass = "badge-success";
+            badgeText = "FIXED";
+          }
+        }
+
+        var urgentClass = item.isUrgent && item.status === "Pending" ? "urgent" : "";
+
+        feedHtml += '<div class="feed-item ' + urgentClass + ' ' + (clickHandler ? 'clickable' : '') + '" onclick="' + clickHandler + '">' +
+          '<div style="font-size: 1.5rem; margin-right: 15px;">' + icon + '</div>' +
+          '<div class="feed-content" style="flex: 1;">' +
+          "<h3>" + item.title + "</h3>" +
+          "<p>by " + item.user + " • " + item.date + "</p>" +
+          (item.status === "Confirmed" ? '<p style="font-size: 0.65rem; color: var(--success);">Verified by ' + item.verifier + "</p>" : "") +
+          (item.status === "Resolved" ? '<p style="font-size: 0.65rem; color: var(--success);">Fixed by ' + item.resolver + "</p>" : "") +
+          "</div>" +
+          '<div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 5px;">' +
+          '<span class="badge ' + badgeClass + '">' + badgeText + "</span>" +
+          actionHtml +
+          "</div>" +
+          "</div>";
+      });
+      document.getElementById("recent-feed").innerHTML = feedHtml || '<p style="text-align:center; padding: 2rem;">No recent activities.</p>';
+    }
+
+    function fetchFormData() {
+      google.script.run.withSuccessHandler(data => {
+        members = data.names;
+        categories = data.categories;
+
+        const nameSelects = document.querySelectorAll('#log-worker-list, #verify-name-list, #ticket-reporter-list, #resolve-name-list');
+        const catSelect = document.getElementById('log-category-list');
+        const tktCatSelect = document.getElementById('ticket-category-list');
+
+        nameSelects.forEach(sel => {
+          sel.innerHTML = '<option value="">Select name...</option>';
+          data.names.forEach(name => {
+            const opt = document.createElement('option');
+            opt.value = opt.text = name;
+            sel.add(opt);
+          });
+        });
+
+        catSelect.innerHTML = '<option value="">Select category...</option>';
+        data.categories.forEach(cat => {
+          const opt = document.createElement('option');
+          opt.value = opt.text = cat;
+          catSelect.add(opt);
+        });
+
+        tktCatSelect.innerHTML = '<option value="">Select category...</option>';
+        data.ticketCategories.forEach(cat => {
+          const opt = document.createElement('option');
+          opt.value = opt.text = cat;
+          tktCatSelect.add(opt);
+        });
+      }).getFormData();
+    }
+
+    // Form Handlers
+    document.getElementById('file-input').addEventListener('change', function (e) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = function (evt) {
+        document.getElementById('screenshot-base64').value = evt.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    document.getElementById('activity-form').onsubmit = function (e) {
+      e.preventDefault();
+      showLoading(true);
+      google.script.run.withSuccessHandler(() => {
+        showLoading(false);
+        showView('success');
+        document.getElementById('activity-form').reset();
+        setDefaultDate();
+      }).submitLog(this);
+    };
+
+    function loadVerificationList() {
+      if (!cachedDashboardData) {
+        loadDashboard();
+        return;
+      }
+      var html = "";
+      var pending = cachedDashboardData.recentActivity.filter(function (i) { return i.status === "Pending"; });
+      pending.forEach(function (item) {
+        html += '<div class="feed-item ' + (item.isUrgent ? "urgent" : "") + '" onclick="openVerification(\'' + item.id + "')\" style=\"cursor: pointer;\">" +
+          '<div class="feed-content">' +
+          '<h3 style="color: var(--primary);">' + item.title + "</h3>" +
+          "<p>Worker: " + item.user + "</p>" +
+          "<p>Date: " + item.date + "</p>" +
+          "</div>" +
+          '<div style="font-weight: 700; color: var(--primary);">REVIEW ></div>' +
+          "</div>";
+      });
+      document.getElementById("pending-verification-list").innerHTML = html || "<p style='text-align:center; padding: 2rem;'>No pending activities to review.</p>";
+      showView("verify-list");
+    }
+
+    function openVerification(id) {
+      showLoading(true);
+      google.script.run.withSuccessHandler(function (item) {
+        showLoading(false);
+        var previewUrl = getPreviewUrl(item.imageUrl);
+        document.getElementById("verify-id").value = item.id;
+        document.getElementById("verify-details").innerHTML =
+          "<p><strong>Activity:</strong> " + item.activity + "</p>" +
+          "<p><strong>Done by:</strong> " + item.worker + "</p>" +
+          "<p><strong>Worker Notes:</strong> " + item.notes + "</p>" +
+          (previewUrl ?
+            '<div style="margin: 15px 0;">' +
+            '<p style="font-size:0.7rem; margin-bottom:5px; color:#666;">PREVIEW:</p>' +
+            '<img src="' + previewUrl + '" style="width:100%; border-radius:8px; border:1px solid #ddd; display:block;">' +
+            "</div>" : "") +
+          (item.imageUrl ? '<a href="' + item.imageUrl + '" target="_blank" style="color: var(--primary); font-weight: 700; display: block; margin-top: 10px; font-size:0.8rem;">📦 View Full Google Drive File</a>' : "<p>No screenshot attached.</p>");
+        showView("verify-form");
+      }).getLogForVerification(id);
+    }
+
+    document.getElementById('verification-form').onsubmit = function (e) {
+      e.preventDefault();
+      showLoading(true);
+      google.script.run.withFailureHandler(err => {
+        showLoading(false);
+        alert(err.message);
+      }).withSuccessHandler(() => {
+        showLoading(false);
+        showView('success');
+        document.getElementById('verification-form').reset();
+      }).submitVerification(this);
+    };
+
+    // Ticket Handlers
+    document.getElementById('ticket-form').onsubmit = function (e) {
+      e.preventDefault();
+      showLoading(true);
+      google.script.run.withSuccessHandler(() => {
+        showLoading(false);
+        showView('success');
+        this.reset();
+      }).submitTicket(this);
+    };
+
+    function loadTicketList() {
+      if (!cachedDashboardData) {
+        loadDashboard();
+        return;
+      }
+      let html = "";
+      cachedDashboardData.activeTickets.forEach(t => {
+        html += '<div class="feed-item ' + (t.isUrgent ? "urgent" : "") + '" onclick="openTicketResolve(\'' + t.id + '\')" style="cursor: pointer;">' +
+          '<div class="feed-content">' +
+          '<h3 style="color: var(--primary);">' + t.title + '</h3>' +
+          '<p style="font-size: 0.7rem;">From: ' + t.user + ' • ' + t.date + '</p>' +
+          '</div>' +
+          '<div style="font-weight: 700; color: var(--primary);">FIX ></div>' +
+          '</div>';
+      });
+      document.getElementById('active-ticket-list').innerHTML = html || "<p style='text-align:center; padding: 2rem;'>No open tickets.</p>";
+      showView('ticket-list');
+    }
+
+    function openTicketResolve(id) {
+      showLoading(true);
+      google.script.run.withSuccessHandler(item => {
+        showLoading(false);
+        document.getElementById('resolve-ticket-id').value = item.id;
+        let imgHtml = "";
+        [item.img1, item.img2, item.img3].forEach(url => {
+          const preview = getPreviewUrl(url);
+          if (preview) imgHtml += '<img src="' + preview + '" style="width:30%; border-radius:4px; margin-right:5%;">';
+        });
+
+        document.getElementById('ticket-details').innerHTML =
+          '<h3>' + item.id + '</h3>' +
+          '<p><strong>Reporter:</strong> ' + item.reporter + '</p>' +
+          '<p><strong>Issue:</strong> ' + item.description + '</p>' +
+          '<div style="margin-top:10px;">' + imgHtml + '</div>';
+        showView('ticket-resolve');
+      }).getTicketForResolution(id);
+    }
+
+    document.getElementById('ticket-resolve-form').onsubmit = function (e) {
+      e.preventDefault();
+      showLoading(true);
+      google.script.run.withSuccessHandler(() => {
+        showLoading(false);
+        showView('success');
+        this.reset();
+      }).resolveTicket(this);
+    };
+  </script>
+</body>
+
+</html>
