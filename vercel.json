@@ -1,0 +1,6 @@
+{
+  "outputDirectory": "av-portal/.next",
+  "buildCommand": "npm run build --prefix av-portal",
+  "installCommand": "npm install --prefix av-portal",
+  "framework": "nextjs"
+}
