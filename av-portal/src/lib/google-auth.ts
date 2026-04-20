@@ -19,8 +19,11 @@ export async function getGoogleAuth() {
     return null;
   }
 
-  // Handle newline characters in private key from env variables
-  const formattedPrivateKey = privateKey.replace(/\\n/g, '\n');
+  // Handle newline characters and potential extra quotes from env variables
+  const formattedPrivateKey = privateKey
+    .trim()
+    .replace(/^"|"$/g, '')
+    .replace(/\\n/g, '\n');
 
   const auth = new google.auth.GoogleAuth({
     credentials: {
