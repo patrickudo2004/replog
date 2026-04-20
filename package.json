@@ -6,7 +6,6 @@
   ],
   "scripts": {
     "build": "npm run build --workspace=av-portal",
-    "install": "npm install",
     "dev": "npm run dev --workspace=av-portal"
   },
   "dependencies": {
