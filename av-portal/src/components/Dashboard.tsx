@@ -57,7 +57,9 @@ const StatCard = ({ title, value, subtitle, icon, onClick, color }: StatCardProp
 );
 
 export default function Dashboard() {
-  const [view, setView] = useState<'home' | 'activity-form' | 'ticket-form' | 'success' | 'explore' | 'history'>('home');
+  const [view, setView] = useState<'home' | 'activity-form' | 'ticket-form' | 'success' | 'history'>('home');
+  const [historyFilter, setHistoryFilter] = useState<'all' | 'pending-logs' | 'open-tickets'>('all');
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [stats, setStats] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -98,6 +100,29 @@ export default function Dashboard() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const updateStatus = async (id: string, type: 'LOG' | 'TICKET', newStatus: string) => {
+    try {
+      setUpdatingId(id);
+      const res = await fetch('/api/update-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, type, newStatus }),
+      });
+      if (!res.ok) throw new Error('Failed to update status');
+      await fetchDashboardData(); // Refresh data
+    } catch (e: any) {
+      console.error(e);
+      alert('Error updating status: ' + e.message);
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  const handleCardClick = (filter: 'pending-logs' | 'open-tickets') => {
+    setHistoryFilter(filter);
+    setView('history');
   };
 
   useEffect(() => {
@@ -157,6 +182,7 @@ export default function Dashboard() {
                 subtitle="Team activity"
                 color="primary"
                 icon={<ClipboardList size={22} />}
+                onClick={() => handleCardClick('pending-logs')}
               />
               <StatCard 
                 title="Open Tickets" 
@@ -164,6 +190,7 @@ export default function Dashboard() {
                 subtitle="Issue reports"
                 color="secondary"
                 icon={<AlertCircle size={22} />}
+                onClick={() => handleCardClick('open-tickets')}
               />
             </div>
 
@@ -315,43 +342,81 @@ export default function Dashboard() {
             className="space-y-8"
           >
             <div className="flex justify-between items-end mb-8">
-              <div>
-                <h1 className="text-2xl font-bold tracking-tight">History</h1>
-                <p className="text-sm text-muted">Comprehensive activity log</p>
+              <div className="flex items-center gap-4">
+                 <button onClick={() => { setView('home'); setHistoryFilter('all'); }} className="p-2 bg-white/50 glass rounded-xl">
+                    <ChevronRight size={24} className="rotate-180" />
+                 </button>
+                 <div>
+                    <h1 className="text-2xl font-bold tracking-tight">
+                       {historyFilter === 'pending-logs' ? 'Pending Review' : historyFilter === 'open-tickets' ? 'Open Tickets' : 'History'}
+                    </h1>
+                    <p className="text-sm text-muted">
+                       {historyFilter === 'all' ? 'Comprehensive activity log' : `Viewing items requiring attention`}
+                    </p>
+                 </div>
               </div>
-              <div className="text-[10px] font-bold text-primary uppercase tracking-widest bg-primary/10 px-3 py-1.5 rounded-full">
-                 Weekly Recap
-              </div>
+              {historyFilter !== 'all' && (
+                <button 
+                  onClick={() => setHistoryFilter('all')}
+                  className="text-[10px] font-bold text-primary uppercase tracking-widest bg-primary/10 px-3 py-1.5 rounded-full hover:bg-primary/20 transition-all"
+                >
+                   Show All
+                </button>
+              )}
             </div>
 
             <div className="space-y-4">
-               {stats?.feed?.length > 0 ? (
-                 stats.feed.map((item: any) => (
-                   <div key={item.id} className="flex items-start gap-4 p-5 bg-white/40 glass rounded-[32px] border border-border">
-                      <div className={cn(
-                        "w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0",
-                        item.type === 'LOG' ? "bg-success/10 text-success" : "bg-urgent/10 text-urgent"
-                      )}>
-                        {item.type === 'LOG' ? <CheckCircle2 size={24} /> : <AlertCircle size={24} />}
+               {stats?.feed?.filter((item: any) => {
+                 if (historyFilter === 'pending-logs') return item.type === 'LOG' && item.status.toLowerCase() === 'pending';
+                 if (historyFilter === 'open-tickets') return item.type === 'TICKET' && item.status.toLowerCase() === 'pending';
+                 return true;
+               }).length > 0 ? (
+                 stats.feed
+                  .filter((item: any) => {
+                    if (historyFilter === 'pending-logs') return item.type === 'LOG' && item.status.toLowerCase() === 'pending';
+                    if (historyFilter === 'open-tickets') return item.type === 'TICKET' && item.status.toLowerCase() === 'pending';
+                    return true;
+                  })
+                  .map((item: any) => (
+                   <div key={item.id} className="flex flex-col gap-4 p-5 bg-white/40 glass rounded-[32px] border border-border">
+                      <div className="flex items-start gap-4">
+                        <div className={cn(
+                          "w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0",
+                          item.type === 'LOG' ? "bg-success/10 text-success" : "bg-urgent/10 text-urgent"
+                        )}>
+                          {item.type === 'LOG' ? <CheckCircle2 size={24} /> : <AlertCircle size={24} />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                           <div className="flex justify-between items-start mb-1">
+                              <h4 className="text-[15px] font-bold truncate text-foreground">{item.title}</h4>
+                              <span className="text-[10px] text-muted whitespace-nowrap ml-2">
+                                 {new Date(item.timestamp).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                              </span>
+                           </div>
+                           <p className="text-[11px] text-muted flex items-center gap-1">
+                              <span className="font-bold text-muted/80">{item.user}</span> 
+                              <span>•</span>
+                              <span className="truncate">{item.type === 'LOG' ? 'System updated' : 'Issue reported'}</span>
+                           </p>
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                         <div className="flex justify-between items-start mb-1">
-                            <h4 className="text-[15px] font-bold truncate text-foreground">{item.title}</h4>
-                            <span className="text-[10px] text-muted whitespace-nowrap ml-2">
-                               {new Date(item.timestamp).toLocaleDateString([], { month: 'short', day: 'numeric' })}
-                            </span>
-                         </div>
-                         <p className="text-[11px] text-muted flex items-center gap-1">
-                            <span className="font-bold text-muted/80">{item.user}</span> 
-                            <span>•</span>
-                            <span className="truncate">{item.type === 'LOG' ? 'System updated' : 'Issue reported'}</span>
-                         </p>
-                      </div>
+
+                      {item.status.toLowerCase() === 'pending' && (
+                        <div className="flex gap-2 pt-2">
+                          <button 
+                            disabled={updatingId === item.id}
+                            onClick={() => updateStatus(item.id, item.type, item.type === 'LOG' ? 'Confirmed' : 'Resolved')}
+                            className="flex-1 py-3 bg-foreground text-background rounded-2xl text-[11px] font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all disabled:opacity-50"
+                          >
+                             {updatingId === item.id ? <Loader2 className="animate-spin" size={14} /> : item.type === 'LOG' ? 'Confirm Activity' : 'Resolve Ticket'}
+                          </button>
+                        </div>
+                      )}
                    </div>
                  ))
                ) : (
                  <div className="text-center p-20 bg-white/10 glass rounded-[40px] border border-dashed border-border">
-                    <p className="text-sm text-muted">No history found yet.</p>
+                    <p className="text-sm text-muted">No items found matching the filter.</p>
                  </div>
                )}
             </div>
@@ -365,22 +430,16 @@ export default function Dashboard() {
         className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-md h-20 glass rounded-[40px] premium-shadow border border-white/30 p-2 flex items-center justify-around z-50 overflow-hidden"
       >
           <button 
-            onClick={() => setView('home')}
-            className={cn("flex flex-col items-center gap-1.5 p-3 transition-colors relative z-10", (view === 'home' || view === 'activity-form' || view === 'ticket-form' || view === 'success') ? "text-primary" : "text-muted/40")}
+            onClick={() => { setView('home'); setHistoryFilter('all'); }}
+            className={cn("flex flex-col items-center gap-1.5 p-3 transition-colors relative z-10 w-[45%]", (view === 'home' || view === 'activity-form' || view === 'ticket-form' || view === 'success') ? "text-primary" : "text-muted/40")}
           >
             <LayoutDashboard size={24} />
             <span className="text-[10px] font-bold tracking-tight">Home</span>
           </button>
+          
           <button 
-            onClick={() => setView('explore')}
-            className={cn("flex flex-col items-center gap-1.5 p-3 transition-colors relative z-10", view === 'explore' ? "text-primary" : "text-muted/40")}
-          >
-            <Search size={24} />
-            <span className="text-[10px] font-bold tracking-tight">Explore</span>
-          </button>
-          <button 
-            onClick={() => setView('history')}
-            className={cn("flex flex-col items-center gap-1.5 p-3 transition-colors relative z-10", view === 'history' ? "text-primary" : "text-muted/40")}
+            onClick={() => { setView('history'); setHistoryFilter('all'); }}
+            className={cn("flex flex-col items-center gap-1.5 p-3 transition-colors relative z-10 w-[45%]", view === 'history' ? "text-primary" : "text-muted/40")}
           >
             <Clock size={24} />
             <span className="text-[10px] font-bold tracking-tight">History</span>
@@ -389,10 +448,9 @@ export default function Dashboard() {
           {/* Sliding Indicator Background */}
           <motion.div 
             layoutId="nav-bg"
-            className="absolute top-2 bottom-2 w-[30%] bg-primary/5 rounded-[32px] border border-primary/10"
+            className="absolute top-2 bottom-2 w-[45%] bg-primary/5 rounded-[32px] border border-primary/10"
             animate={{
-              x: (view === 'home' || view === 'activity-form' || view === 'ticket-form' || view === 'success') ? '-100%' : 
-                 view === 'explore' ? '0%' : '100%'
+              x: (view === 'home' || view === 'activity-form' || view === 'ticket-form' || view === 'success') ? '-50%' : '50%'
             }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
           />
