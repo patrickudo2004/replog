@@ -57,7 +57,7 @@ const StatCard = ({ title, value, subtitle, icon, onClick, color }: StatCardProp
 );
 
 export default function Dashboard() {
-  const [view, setView] = useState<'home' | 'activity-form' | 'ticket-form' | 'success'>('home');
+  const [view, setView] = useState<'home' | 'activity-form' | 'ticket-form' | 'success' | 'explore' | 'history'>('home');
   const [stats, setStats] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -269,6 +269,94 @@ export default function Dashboard() {
             onBack={() => setView('home')} 
           />
         )}
+
+        {view === 'explore' && (
+          <motion.div 
+            key="explore"
+            initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
+            className="space-y-8"
+          >
+            <div className="mb-8">
+              <h1 className="text-2xl font-bold tracking-tight">Explore</h1>
+              <p className="text-sm text-muted">Winners Chapel Manchester Resource Directory</p>
+            </div>
+            
+            <div className="grid grid-cols-1 gap-4">
+              {[
+                { name: 'Website & IT', role: 'Technical Subunit', icon: '💻' },
+                { name: 'Social Media', role: 'Content & Engagement', icon: '📱' },
+                { name: 'Sound & Audio', role: 'Live Production', icon: '🔊' },
+                { name: 'Video Control', role: 'Streaming & Broadcast', icon: '📹' }
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-4 p-5 bg-white/40 glass rounded-[32px] border border-border group hover:bg-white/60 transition-all cursor-pointer">
+                  <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-2xl">
+                    {item.icon}
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-foreground">{item.name}</h4>
+                    <p className="text-xs text-muted">{item.role}</p>
+                  </div>
+                  <ChevronRight size={20} className="ml-auto opacity-30 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                </div>
+              ))}
+            </div>
+
+            <div className="p-6 bg-secondary/5 border border-secondary/10 rounded-[32px] text-center">
+               <p className="text-xs font-bold text-secondary uppercase tracking-widest mb-1">Coming Soon</p>
+               <p className="text-[10px] text-muted">More subunits and resources will be added here as the portal evolves.</p>
+            </div>
+          </motion.div>
+        )}
+
+        {view === 'history' && (
+          <motion.div 
+            key="history"
+            initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
+            className="space-y-8"
+          >
+            <div className="flex justify-between items-end mb-8">
+              <div>
+                <h1 className="text-2xl font-bold tracking-tight">History</h1>
+                <p className="text-sm text-muted">Comprehensive activity log</p>
+              </div>
+              <div className="text-[10px] font-bold text-primary uppercase tracking-widest bg-primary/10 px-3 py-1.5 rounded-full">
+                 Weekly Recap
+              </div>
+            </div>
+
+            <div className="space-y-4">
+               {stats?.feed?.length > 0 ? (
+                 stats.feed.map((item: any) => (
+                   <div key={item.id} className="flex items-start gap-4 p-5 bg-white/40 glass rounded-[32px] border border-border">
+                      <div className={cn(
+                        "w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0",
+                        item.type === 'LOG' ? "bg-success/10 text-success" : "bg-urgent/10 text-urgent"
+                      )}>
+                        {item.type === 'LOG' ? <CheckCircle2 size={24} /> : <AlertCircle size={24} />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                         <div className="flex justify-between items-start mb-1">
+                            <h4 className="text-[15px] font-bold truncate text-foreground">{item.title}</h4>
+                            <span className="text-[10px] text-muted whitespace-nowrap ml-2">
+                               {new Date(item.timestamp).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+                            </span>
+                         </div>
+                         <p className="text-[11px] text-muted flex items-center gap-1">
+                            <span className="font-bold text-muted/80">{item.user}</span> 
+                            <span>•</span>
+                            <span className="truncate">{item.type === 'LOG' ? 'System updated' : 'Issue reported'}</span>
+                         </p>
+                      </div>
+                   </div>
+                 ))
+               ) : (
+                 <div className="text-center p-20 bg-white/10 glass rounded-[40px] border border-dashed border-border">
+                    <p className="text-sm text-muted">No history found yet.</p>
+                 </div>
+               )}
+            </div>
+          </motion.div>
+        )}
       </AnimatePresence>
 
       {/* Bottom Nav */}
@@ -276,18 +364,39 @@ export default function Dashboard() {
         initial={{ y: 100 }} animate={{ y: 0 }}
         className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-md h-20 glass rounded-[40px] premium-shadow border border-white/30 p-2 flex items-center justify-around z-50 overflow-hidden"
       >
-          <button className={cn("flex flex-col items-center gap-1.5 p-3 transition-colors", view === 'home' ? "text-primary" : "text-muted/40")}>
+          <button 
+            onClick={() => setView('home')}
+            className={cn("flex flex-col items-center gap-1.5 p-3 transition-colors relative z-10", (view === 'home' || view === 'activity-form' || view === 'ticket-form' || view === 'success') ? "text-primary" : "text-muted/40")}
+          >
             <LayoutDashboard size={24} />
             <span className="text-[10px] font-bold tracking-tight">Home</span>
           </button>
-          <button className="flex flex-col items-center gap-1.5 p-3 text-muted/40 transition-colors">
+          <button 
+            onClick={() => setView('explore')}
+            className={cn("flex flex-col items-center gap-1.5 p-3 transition-colors relative z-10", view === 'explore' ? "text-primary" : "text-muted/40")}
+          >
             <Search size={24} />
             <span className="text-[10px] font-bold tracking-tight">Explore</span>
           </button>
-          <button className="flex flex-col items-center gap-1.5 p-3 text-muted/40 transition-colors">
+          <button 
+            onClick={() => setView('history')}
+            className={cn("flex flex-col items-center gap-1.5 p-3 transition-colors relative z-10", view === 'history' ? "text-primary" : "text-muted/40")}
+          >
             <Clock size={24} />
             <span className="text-[10px] font-bold tracking-tight">History</span>
           </button>
+          
+          {/* Sliding Indicator Background */}
+          <motion.div 
+            layoutId="nav-bg"
+            className="absolute top-2 bottom-2 w-[30%] bg-primary/5 rounded-[32px] border border-primary/10"
+            animate={{
+              x: (view === 'home' || view === 'activity-form' || view === 'ticket-form' || view === 'success') ? '-100%' : 
+                 view === 'explore' ? '0%' : '100%'
+            }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          />
+          
           <div className="absolute top-0 right-1/2 translate-x-1/2 w-12 h-1 bg-primary/20 rounded-b-full" />
       </motion.div>
     </div>
