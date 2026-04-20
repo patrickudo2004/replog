@@ -1,6 +1,0 @@
-{
-  "buildCommand": "cd av-portal && npm run build",
-  "outputDirectory": "av-portal/.next",
-  "framework": "nextjs",
-  "installCommand": "cd av-portal && npm install"
-}

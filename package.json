@@ -1,0 +1,12 @@
+{
+  "name": "replog-root",
+  "private": true,
+  "scripts": {
+    "build": "npm run build --prefix av-portal",
+    "install": "npm install --prefix av-portal",
+    "dev": "npm run dev --prefix av-portal"
+  },
+  "dependencies": {
+    "next": "16.2.3"
+  }
+}
