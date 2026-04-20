@@ -1,0 +1,15 @@
+{
+  "name": "replog-monorepo",
+  "private": true,
+  "workspaces": [
+    "av-portal"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace=av-portal",
+    "install": "npm install",
+    "dev": "npm run dev --workspace=av-portal"
+  },
+  "dependencies": {
+    "next": "16.2.4"
+  }
+}

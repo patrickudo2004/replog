@@ -1,0 +1,5 @@
+{
+  "buildCommand": "npm run build --workspace=av-portal",
+  "outputDirectory": "av-portal/.next",
+  "framework": "nextjs"
+}
