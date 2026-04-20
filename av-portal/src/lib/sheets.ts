@@ -9,6 +9,7 @@ import { getGoogleAuth } from './google-auth';
 
 export async function getSheetsClient() {
   const auth = await getGoogleAuth();
+  if (!auth) throw new Error('GOOGLE_AUTH_FAILED: Missing credentials');
   return google.sheets({ version: 'v4', auth: auth as any });
 }
 

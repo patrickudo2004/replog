@@ -11,7 +11,10 @@ import {
   Clock,
   ChevronRight,
   Loader2,
-  Bell
+  Bell,
+  Moon,
+  Sun,
+  AlertTriangle
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import ActivityForm from './ActivityForm';
@@ -57,15 +60,41 @@ export default function Dashboard() {
   const [view, setView] = useState<'home' | 'activity-form' | 'ticket-form' | 'success'>('home');
   const [stats, setStats] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+
+  // Theme management
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
+    if (savedTheme) {
+      setTheme(savedTheme);
+      document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+      document.documentElement.classList.toggle('light', savedTheme === 'light');
+    } else {
+      // Default to dark
+      document.documentElement.classList.add('dark');
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+    document.documentElement.classList.toggle('dark', newTheme === 'dark');
+    document.documentElement.classList.toggle('light', newTheme === 'light');
+  };
 
   const fetchDashboardData = async () => {
     try {
       setIsLoading(true);
+      setError(null);
       const res = await fetch('/api/dashboard');
       const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to fetch dashboard');
       setStats(data);
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
+      setError(e.message);
     } finally {
       setIsLoading(false);
     }
@@ -89,17 +118,36 @@ export default function Dashboard() {
                 <h1 className="text-2xl font-bold tracking-tight">Technical Portal</h1>
                 <p className="text-sm text-muted">Winners Chapel Manchester</p>
               </div>
-              <div className="relative">
-                <div className="w-12 h-12 rounded-full bg-primary/5 flex items-center justify-center border border-primary/10">
-                   <img src="https://lh3.googleusercontent.com/d/1PnzuJKAgogeB4JMUPBLGEQZECTQk8BUh" alt="Logo" className="w-8 h-8 object-contain" />
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={toggleTheme}
+                  className="w-10 h-10 rounded-full bg-card glass border border-border flex items-center justify-center text-foreground transition-transform active:scale-95"
+                >
+                  {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                </button>
+                <div className="relative">
+                  <div className="w-12 h-12 rounded-full bg-primary/5 flex items-center justify-center border border-primary/10">
+                    <img src="https://lh3.googleusercontent.com/d/1PnzuJKAgogeB4JMUPBLGEQZECTQk8BUh" alt="Logo" className="w-8 h-8 object-contain" />
+                  </div>
+                  {stats?.pendingLogs > 0 && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-[10px] flex items-center justify-center rounded-full border-2 border-background animate-pulse font-bold">
+                      !
+                    </span>
+                  )}
                 </div>
-                {stats?.pendingLogs > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-[10px] flex items-center justify-center rounded-full border-2 border-background animate-pulse font-bold">
-                    !
-                  </span>
-                )}
               </div>
             </div>
+
+            {error && (
+              <div className="mb-8 p-4 bg-urgent/10 border border-urgent/20 rounded-2xl flex items-center gap-3 text-urgent">
+                <AlertTriangle size={20} />
+                <div className="flex-1">
+                  <p className="text-xs font-bold leading-tight">Connection Issue</p>
+                  <p className="text-[10px] opacity-80">{error.includes('GOOGLE_AUTH_FAILED') ? 'Setup Required: Missing Google Credentials in Vercel.' : error}</p>
+                </div>
+                <button onClick={fetchDashboardData} className="px-3 py-1 bg-urgent text-white text-[10px] font-bold rounded-lg shrink-0">Retry</button>
+              </div>
+            )}
 
             {/* Stats Grid */}
             <div className="grid grid-cols-2 gap-4 mb-8">
@@ -161,7 +209,7 @@ export default function Dashboard() {
                   [1, 2, 3].map(i => (
                     <div key={i} className="h-20 w-full animate-pulse bg-white/40 glass rounded-3xl" />
                   ))
-                ) : stats?.feed?.length > 0 ? (
+                ) : (stats?.feed && Array.isArray(stats.feed) && stats.feed.length > 0) ? (
                   stats.feed.map((item: any) => (
                     <div key={item.id} className="flex items-start gap-4 p-4 bg-white/40 glass rounded-3xl border border-border group hover:bg-white/60 transition-all">
                       <div className={cn(

@@ -23,10 +23,17 @@ export default function ActivityForm({ onBack, onSuccess }: ActivityFormProps) {
 
   useEffect(() => {
     fetch('/api/form-data')
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to load form data');
+        return res.json();
+      })
       .then(data => {
-        setNames(data.names);
-        setCategories(data.activityCategories);
+        setNames(data.names || []);
+        setCategories(data.activityCategories || []);
+        setIsLoadingData(false);
+      })
+      .catch(err => {
+        console.error(err);
         setIsLoadingData(false);
       });
   }, []);

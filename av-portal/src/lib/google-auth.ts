@@ -15,7 +15,7 @@ export async function getGoogleAuth() {
   const privateKey = process.env.GOOGLE_PRIVATE_KEY;
 
   if (!clientEmail || !privateKey) {
-    console.warn('Google Service Account credentials are missing from environment variables.');
+    console.error('CRITICAL: Google Service Account credentials (GOOGLE_SERVICE_ACCOUNT_EMAIL or GOOGLE_PRIVATE_KEY) are missing from environment variables.');
     return null;
   }
 
