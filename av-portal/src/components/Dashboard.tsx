@@ -14,12 +14,15 @@ import {
   Bell,
   Moon,
   Sun,
-  AlertTriangle
+  AlertTriangle,
+  Trophy,
+  Users
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import ActivityForm from './ActivityForm';
 import TicketForm from './TicketForm';
 import SuccessScreen from './SuccessScreen';
+import ReviewModal from './ReviewModal';
 import { cn } from '@/lib/utils';
 
 interface StatCardProps {
@@ -59,7 +62,7 @@ const StatCard = ({ title, value, subtitle, icon, onClick, color }: StatCardProp
 export default function Dashboard() {
   const [view, setView] = useState<'home' | 'activity-form' | 'ticket-form' | 'success' | 'history'>('home');
   const [historyFilter, setHistoryFilter] = useState<'all' | 'pending-logs' | 'open-tickets'>('all');
-  const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [selectedItemForReview, setSelectedItemForReview] = useState<any>(null);
   const [stats, setStats] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -102,22 +105,9 @@ export default function Dashboard() {
     }
   };
 
-  const updateStatus = async (id: string, type: 'LOG' | 'TICKET', newStatus: string) => {
-    try {
-      setUpdatingId(id);
-      const res = await fetch('/api/update-status', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, type, newStatus }),
-      });
-      if (!res.ok) throw new Error('Failed to update status');
-      await fetchDashboardData(); // Refresh data
-    } catch (e: any) {
-      console.error(e);
-      alert('Error updating status: ' + e.message);
-    } finally {
-      setUpdatingId(null);
-    }
+  const handleReviewSuccess = () => {
+    setSelectedItemForReview(null);
+    fetchDashboardData();
   };
 
   const handleCardClick = (filter: 'pending-logs' | 'open-tickets') => {
@@ -175,7 +165,7 @@ export default function Dashboard() {
             )}
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-2 gap-4 mb-8">
+            <div className="grid grid-cols-2 gap-4 mb-4">
               <StatCard 
                 title="Awaiting Review" 
                 value={isLoading ? '...' : stats?.pendingLogs ?? 0} 
@@ -192,10 +182,39 @@ export default function Dashboard() {
                 icon={<AlertCircle size={22} />}
                 onClick={() => handleCardClick('open-tickets')}
               />
+              <StatCard 
+                title="Logs (Week)" 
+                value={isLoading ? '...' : stats?.logsThisWeek ?? 0} 
+                subtitle="Past 7 days"
+                color="success"
+                icon={<CheckCircle2 size={22} />}
+              />
+              <StatCard 
+                title="Active Members" 
+                value={isLoading ? '...' : stats?.activeMembers ?? 0} 
+                subtitle="Recent contributors"
+                color="urgent"
+                icon={<Users size={22} />}
+              />
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-col gap-3 mb-12">
+            <div className="flex flex-col gap-3 mb-8">
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                <button 
+                  onClick={() => handleCardClick('pending-logs')}
+                  className="p-4 bg-primary/10 text-primary rounded-[24px] font-bold text-sm hover:bg-primary/20 transition-all flex items-center justify-center gap-2"
+                >
+                  <ClipboardList size={18} /> Review Activities
+                </button>
+                <button 
+                  onClick={() => handleCardClick('open-tickets')}
+                  className="p-4 bg-secondary/10 text-secondary rounded-[24px] font-bold text-sm hover:bg-secondary/20 transition-all flex items-center justify-center gap-2"
+                >
+                  <AlertCircle size={18} /> Resolve Tickets
+                </button>
+              </div>
+
               <motion.button 
                 whileTap={{ scale: 0.97 }}
                 onClick={() => setView('activity-form')}
@@ -220,6 +239,27 @@ export default function Dashboard() {
                 <ChevronRight size={20} className="opacity-40" />
               </motion.button>
             </div>
+
+            {/* Leaderboard */}
+            {!isLoading && stats?.leaderboard && stats.leaderboard.length > 0 && (
+              <div className="mb-8 p-6 bg-white/40 glass rounded-[32px] border border-border">
+                <div className="flex items-center gap-2 mb-4">
+                  <Trophy size={20} className="text-[#FFD700]" />
+                  <h3 className="font-bold">Monthly Leaderboard</h3>
+                </div>
+                <div className="space-y-3">
+                  {stats.leaderboard.map((user: any, index: number) => (
+                    <div key={user.name} className="flex justify-between items-center bg-white/50 p-3 rounded-2xl">
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-bold text-muted/50 w-4 text-center">{index + 1}</span>
+                        <span className="font-bold text-sm">{user.name}</span>
+                      </div>
+                      <span className="text-xs font-bold bg-success/10 text-success px-2 py-1 rounded-lg">{user.count} logs</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Recent Feed */}
             <div>
@@ -366,11 +406,10 @@ export default function Dashboard() {
                       {item.status.toLowerCase() === 'pending' && (
                         <div className="flex gap-2 pt-2">
                           <button 
-                            disabled={updatingId === item.id}
-                            onClick={() => updateStatus(item.id, item.type, item.type === 'LOG' ? 'Confirmed' : 'Resolved')}
-                            className="flex-1 py-3 bg-foreground text-background rounded-2xl text-[11px] font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all disabled:opacity-50"
+                            onClick={() => setSelectedItemForReview(item)}
+                            className="flex-1 py-3 bg-foreground text-background rounded-2xl text-[11px] font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all"
                           >
-                             {updatingId === item.id ? <Loader2 className="animate-spin" size={14} /> : item.type === 'LOG' ? 'Confirm Activity' : 'Resolve Ticket'}
+                             {item.type === 'LOG' ? 'Confirm Activity' : 'Resolve Ticket'}
                           </button>
                         </div>
                       )}
@@ -419,6 +458,17 @@ export default function Dashboard() {
           
           <div className="absolute top-0 right-1/2 translate-x-1/2 w-12 h-1 bg-primary/20 rounded-b-full" />
       </motion.div>
+
+      {/* Review Modal */}
+      <AnimatePresence>
+        {selectedItemForReview && (
+          <ReviewModal 
+            item={selectedItemForReview} 
+            onClose={() => setSelectedItemForReview(null)} 
+            onSuccess={handleReviewSuccess} 
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
