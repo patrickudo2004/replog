@@ -86,20 +86,20 @@ export default function TicketForm({ onBack, onSuccess }: TicketFormProps) {
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
       <div className="flex items-center gap-4 mb-8">
-        <button onClick={onBack} className="p-2 bg-white/50 glass rounded-xl">
+        <button onClick={onBack} className="p-2 glass rounded-xl">
           <ChevronLeft size={24} />
         </button>
         <h2 className="text-2xl font-bold">Report Issue</h2>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 bg-white/40 glass p-6 rounded-[32px] border border-border premium-shadow">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 glass p-6 rounded-[32px] border border-border premium-shadow">
         <div className="space-y-4">
           <div className="space-y-1.5">
             <label className="text-sm font-semibold text-muted/80 ml-1">Reported By</label>
             <div className="flex flex-col gap-2">
               <select 
                 {...register('reporter')}
-                className="w-full p-4 rounded-2xl bg-white/50 border border-border outline-none"
+                className="w-full p-4 rounded-2xl bg-background border border-border outline-none"
               >
                 <option value="">Select if team member...</option>
                 {names.map(name => <option key={name} value={name}>{name}</option>)}
@@ -108,7 +108,7 @@ export default function TicketForm({ onBack, onSuccess }: TicketFormProps) {
                 type="text" 
                 placeholder="OR type name here..."
                 {...register('customReporter')}
-                className="w-full p-4 rounded-2xl bg-white/50 border border-border outline-none focus:border-primary transition-all"
+                className="w-full p-4 rounded-2xl bg-background border border-border outline-none focus:border-primary transition-all"
               />
             </div>
           </div>
@@ -120,14 +120,14 @@ export default function TicketForm({ onBack, onSuccess }: TicketFormProps) {
                 type="text" 
                 placeholder="e.g. Map User"
                 {...register('source', { required: true })}
-                className="w-full p-4 rounded-2xl bg-white/50 border border-border outline-none"
+                className="w-full p-4 rounded-2xl bg-background border border-border outline-none"
               />
             </div>
             <div className="space-y-1.5">
               <label className="text-sm font-semibold text-muted/80 ml-1">Category</label>
               <select 
                 {...register('category', { required: true })}
-                className="w-full p-4 rounded-2xl bg-white/50 border border-border outline-none"
+                className="w-full p-4 rounded-2xl bg-background border border-border outline-none"
               >
                 <option value="">Select...</option>
                 {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
@@ -141,7 +141,7 @@ export default function TicketForm({ onBack, onSuccess }: TicketFormProps) {
               rows={3}
               placeholder="Provide as much detail as possible..."
               {...register('description', { required: true })}
-              className="w-full p-4 rounded-2xl bg-white/50 border border-border outline-none resize-none"
+              className="w-full p-4 rounded-2xl bg-background border border-border outline-none resize-none"
             />
           </div>
 

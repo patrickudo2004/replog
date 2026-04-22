@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { updateItemStatus } from '@/lib/sheets';
 import { uploadToDrive } from '@/lib/drive';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();

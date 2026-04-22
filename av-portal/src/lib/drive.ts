@@ -20,9 +20,7 @@ export async function uploadToDrive(buffer: Buffer, fileName: string, mimeType: 
   if (!FOLDER_ID) throw new Error('GOOGLE_DRIVE_FOLDER_ID is not defined');
 
   // Convert Buffer to Stream for the Drive API
-  const stream = new Readable();
-  stream.push(buffer);
-  stream.push(null);
+  const stream = Readable.from(buffer);
 
   const fileMetadata = {
     name: fileName,

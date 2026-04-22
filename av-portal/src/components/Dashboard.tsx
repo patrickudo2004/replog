@@ -144,7 +144,7 @@ export default function Dashboard() {
                   <div className="w-12 h-12 rounded-full bg-primary/5 flex items-center justify-center border border-primary/10">
                     <img src="https://lh3.googleusercontent.com/d/1PnzuJKAgogeB4JMUPBLGEQZECTQk8BUh" alt="Logo" className="w-8 h-8 object-contain" />
                   </div>
-                  {stats?.pendingLogs > 0 && (
+                  {(stats?.pendingLogs > 0 || stats?.openTickets > 0) && (
                     <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-[10px] flex items-center justify-center rounded-full border-2 border-background animate-pulse font-bold">
                       !
                     </span>
@@ -268,7 +268,7 @@ export default function Dashboard() {
                    Live Feed 
                    <div className="w-2 h-2 rounded-full bg-success animate-ping" />
                 </h2>
-                <span className="text-xs font-bold text-primary uppercase tracking-widest cursor-pointer hover:underline">History</span>
+                <span onClick={() => { setView('history'); setHistoryFilter('all'); }} className="text-xs font-bold text-primary uppercase tracking-widest cursor-pointer hover:underline">View All</span>
               </div>
               
               <div className="space-y-4">
@@ -277,7 +277,7 @@ export default function Dashboard() {
                     <div key={i} className="h-20 w-full animate-pulse bg-white/40 glass rounded-3xl" />
                   ))
                 ) : (stats?.feed && Array.isArray(stats.feed) && stats.feed.length > 0) ? (
-                  stats.feed.map((item: any) => (
+                  stats.feed.slice(0, 5).map((item: any) => (
                     <div key={item.id} className="flex items-start gap-4 p-4 bg-white/40 glass rounded-3xl border border-border group hover:bg-white/60 transition-all">
                       <div className={cn(
                         "w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0",
@@ -428,7 +428,7 @@ export default function Dashboard() {
       {/* Bottom Nav */}
       <motion.div 
         initial={{ y: 100 }} animate={{ y: 0 }}
-        className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-md h-20 glass rounded-[40px] premium-shadow border border-white/30 p-2 flex items-center justify-around z-50 overflow-hidden"
+        className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-md h-20 bg-background rounded-[40px] premium-shadow border border-border p-2 flex items-center justify-around z-50 overflow-hidden"
       >
           <button 
             onClick={() => { setView('home'); setHistoryFilter('all'); }}

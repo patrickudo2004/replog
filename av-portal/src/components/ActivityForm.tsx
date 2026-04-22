@@ -84,13 +84,13 @@ export default function ActivityForm({ onBack, onSuccess }: ActivityFormProps) {
       className="space-y-6"
     >
       <div className="flex items-center gap-4 mb-8">
-        <button onClick={onBack} className="p-2 bg-white/50 glass rounded-xl">
+        <button onClick={onBack} className="p-2 glass rounded-xl">
           <ChevronLeft size={24} />
         </button>
         <h2 className="text-2xl font-bold">New Activity Log</h2>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 bg-white/40 glass p-6 rounded-[32px] border border-border premium-shadow">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 glass p-6 rounded-[32px] border border-border premium-shadow">
         <div className="space-y-4">
           <div className="space-y-1.5">
             <label className="text-sm font-semibold text-muted/80 ml-1">Activity Date</label>
@@ -98,7 +98,7 @@ export default function ActivityForm({ onBack, onSuccess }: ActivityFormProps) {
               type="date" 
               defaultValue={new Date().toISOString().split('T')[0]}
               {...register('date', { required: true })}
-              className="w-full p-4 rounded-2xl bg-white/50 border border-border focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+              className="w-full p-4 rounded-2xl bg-background border border-border focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
             />
           </div>
 
@@ -107,7 +107,7 @@ export default function ActivityForm({ onBack, onSuccess }: ActivityFormProps) {
               <label className="text-sm font-semibold text-muted/80 ml-1">Who did this?</label>
               <select 
                 {...register('worker', { required: true })}
-                className="w-full p-4 rounded-2xl bg-white/50 border border-border outline-none"
+                className="w-full p-4 rounded-2xl bg-background border border-border outline-none"
               >
                 <option value="">Select...</option>
                 {names.map(name => <option key={name} value={name}>{name}</option>)}
@@ -117,7 +117,7 @@ export default function ActivityForm({ onBack, onSuccess }: ActivityFormProps) {
               <label className="text-sm font-semibold text-muted/80 ml-1">Category</label>
               <select 
                 {...register('category', { required: true })}
-                className="w-full p-4 rounded-2xl bg-white/50 border border-border outline-none"
+                className="w-full p-4 rounded-2xl bg-background border border-border outline-none"
               >
                 <option value="">Select...</option>
                 {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
@@ -131,7 +131,7 @@ export default function ActivityForm({ onBack, onSuccess }: ActivityFormProps) {
               type="text" 
               placeholder="e.g., Update Service Flyer"
               {...register('activityName', { required: true })}
-              className="w-full p-4 rounded-2xl bg-white/50 border border-border outline-none focus:border-primary transition-all"
+              className="w-full p-4 rounded-2xl bg-background border border-border outline-none focus:border-primary transition-all"
             />
           </div>
 
@@ -141,7 +141,7 @@ export default function ActivityForm({ onBack, onSuccess }: ActivityFormProps) {
               rows={3}
               placeholder="Briefly describe what you did..."
               {...register('implementationNotes', { required: true })}
-              className="w-full p-4 rounded-2xl bg-white/50 border border-border outline-none focus:border-primary transition-all resize-none"
+              className="w-full p-4 rounded-2xl bg-background border border-border outline-none focus:border-primary transition-all resize-none"
             />
           </div>
 

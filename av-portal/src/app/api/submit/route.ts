@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { uploadToDrive } from '@/lib/drive';
 import { appendToSheet } from '@/lib/sheets';
-import { formatDate } from 'date-fns'; // I should install date-fns or use native
+
+
+export const dynamic = 'force-dynamic';
+
 
 /**
  * Winners Chapel Manchester - AV Technical Portal

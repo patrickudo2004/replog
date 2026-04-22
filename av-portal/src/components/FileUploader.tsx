@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Camera, X, ImageIcon, Loader2 } from 'lucide-react';
-import { convertHeicToJpeg } from '@/lib/utils';
+import { processImage } from '@/lib/utils';
 
 interface FileUploaderProps {
   onFileSelect: (file: File | null) => void;
@@ -20,7 +20,7 @@ export default function FileUploader({ onFileSelect, label = "Upload Screenshot"
     if (!file) return;
 
     setIsConverting(true);
-    const processedFile = await convertHeicToJpeg(file);
+    const processedFile = await processImage(file);
     setIsConverting(false);
 
     onFileSelect(processedFile);
