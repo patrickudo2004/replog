@@ -26,11 +26,13 @@ export async function POST(req: NextRequest) {
       const file = formData.get('screenshot') as File | null;
 
       let screenshotUrl = '';
-      if (file) {
+      if (file && file.size > 0) {
+        console.log(`[Submit] Uploading screenshot: ${file.name}, size: ${file.size}, type: ${file.type}`);
         const buffer = Buffer.from(await file.arrayBuffer());
-        const fileName = `LOG_${worker}_${new Date().getTime()}`;
-        const driveFile = await uploadToDrive(buffer, fileName, file.type);
+        const fileName = `LOG_${worker}_${Date.now()}`;
+        const driveFile = await uploadToDrive(buffer, fileName, file.type || 'image/jpeg');
         screenshotUrl = driveFile.url || '';
+        console.log(`[Submit] Screenshot uploaded: ${screenshotUrl}`);
       }
 
       const newId = `LOG-${new Date().getTime().toString().slice(-8)}`;
