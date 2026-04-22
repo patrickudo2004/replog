@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { uploadToDrive } from '@/lib/drive';
+import { uploadToStorage } from '@/lib/storage';
 import { appendToSheet } from '@/lib/sheets';
 
 
@@ -29,9 +29,9 @@ export async function POST(req: NextRequest) {
       if (file && file.size > 0) {
         console.log(`[Submit] Uploading screenshot: ${file.name}, size: ${file.size}, type: ${file.type}`);
         const buffer = Buffer.from(await file.arrayBuffer());
-        const fileName = `LOG_${worker}_${Date.now()}`;
-        const driveFile = await uploadToDrive(buffer, fileName, file.type || 'image/jpeg');
-        screenshotUrl = driveFile.url || '';
+        const fileName = `logs/LOG_${worker}_${Date.now()}.jpg`;
+        const result = await uploadToStorage(buffer, fileName, file.type || 'image/jpeg');
+        screenshotUrl = result.url;
         console.log(`[Submit] Screenshot uploaded: ${screenshotUrl}`);
       }
 
@@ -66,11 +66,11 @@ export async function POST(req: NextRequest) {
       const images: string[] = [];
       for (let i = 1; i <= 3; i++) {
         const file = formData.get(`image${i}`) as File | null;
-        if (file) {
+        if (file && file.size > 0) {
           const buffer = Buffer.from(await file.arrayBuffer());
-          const fileName = `TKT_${reporter}_${i}_${new Date().getTime()}`;
-          const driveFile = await uploadToDrive(buffer, fileName, file.type);
-          images.push(driveFile.url || '');
+          const fileName = `tickets/TKT_${reporter}_${i}_${Date.now()}.jpg`;
+          const result = await uploadToStorage(buffer, fileName, file.type || 'image/jpeg');
+          images.push(result.url);
         } else {
           images.push("");
         }

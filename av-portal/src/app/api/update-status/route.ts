@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { updateItemStatus } from '@/lib/sheets';
-import { uploadToDrive } from '@/lib/drive';
+import { uploadToStorage } from '@/lib/storage';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,11 +25,11 @@ export async function POST(req: NextRequest) {
       updateData.resNotes = formData.get('resNotes') as string;
       
       const file = formData.get('resImage') as File | null;
-      if (file) {
+      if (file && file.size > 0) {
         const buffer = Buffer.from(await file.arrayBuffer());
-        const fileName = `RES_${updateData.resolver}_${new Date().getTime()}`;
-        const driveFile = await uploadToDrive(buffer, fileName, file.type);
-        updateData.resImage = driveFile.url || '';
+        const fileName = `resolutions/RES_${updateData.resolver}_${Date.now()}.jpg`;
+        const result = await uploadToStorage(buffer, fileName, file.type || 'image/jpeg');
+        updateData.resImage = result.url;
       }
     }
 
