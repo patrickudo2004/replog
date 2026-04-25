@@ -1,6 +1,6 @@
 /**
  * Winners Chapel Manchester - AV Technical Portal
- * Hybrid GAS Backend (Direct API v3 Version)
+ * Hybrid GAS Backend (Direct API v3 Version - Direct Link Fix)
  */
 
 const CONFIG = {
@@ -22,7 +22,6 @@ function doPost(e) {
       return createJsonResponse({ success: false, error: "No image data provided" });
     }
 
-    // Direct Drive API v3 Upload
     const decodedData = Utilities.base64Decode(base64Data);
     const blob = Utilities.newBlob(decodedData, mimeType || 'image/jpeg', fileName);
     
@@ -31,21 +30,24 @@ function doPost(e) {
       parents: [CONFIG.SCREENSHOT_FOLDER_ID]
     };
     
-    // CRITICAL: Must specify 'fields' to get the webViewLink back in v3
+    // Create the file
     const file = Drive.Files.create(fileMetadata, blob, {
-      fields: 'id, webViewLink, webContentLink'
+      fields: 'id' // We only need the ID to build the direct link
     });
     
-    // Set public permissions
+    // Set public permissions (Anyone with link can view)
     const permission = {
       role: 'reader',
       type: 'anyone'
     };
     Drive.Permissions.create(permission, file.id);
     
+    // Build the DIRECT IMAGE LINK (The "lh3" trick works best for embedding)
+    const directUrl = "https://lh3.googleusercontent.com/d/" + file.id;
+    
     return createJsonResponse({
       success: true,
-      url: file.webViewLink || file.webContentLink
+      url: directUrl
     });
 
   } catch (err) {
@@ -60,20 +62,12 @@ function createJsonResponse(data) {
 }
 
 /**
- * Test function to verify access
+ * Test function
  */
 function testSetup() {
   try {
     const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
     console.log("Connected to spreadsheet: " + ss.getName());
-    
-    const files = Drive.Files.list({
-      q: "'" + CONFIG.SCREENSHOT_FOLDER_ID + "' in parents",
-      pageSize: 1,
-      fields: 'files(id, name)'
-    });
-    console.log("Drive API v3 check: Success.");
-    
     return "Direct API v3 Setup is valid!";
   } catch (e) {
     console.error("Setup Error: " + e.toString());
