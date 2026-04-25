@@ -18,7 +18,8 @@ export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
     console.log('[Submit] FormData parsed');
-    const type = formData.get('type') as string; // 'LOG' or 'TICKET'
+    const type = formData.get('type') as string;
+    console.log('[Submit] Type:', type);
 
     if (type === 'LOG') {
       const worker = formData.get('worker') as string;
@@ -31,18 +32,17 @@ export async function POST(req: NextRequest) {
 
       let screenshotUrl = '';
       if (file && file.size > 0) {
-        console.log(`[Submit] Uploading screenshot: ${file.name}, size: ${file.size}, type: ${file.type}`);
+        console.log(`[Submit] Starting image upload...`);
         const buffer = Buffer.from(await file.arrayBuffer());
         const fileName = `logs/LOG_${worker}_${Date.now()}.jpg`;
         const result = await uploadToStorage(buffer, fileName, file.type || 'image/jpeg');
         screenshotUrl = result.url;
-        console.log(`[Submit] Screenshot uploaded: ${screenshotUrl}`);
+        console.log(`[Submit] Image upload finished: ${screenshotUrl}`);
       }
 
       const newId = `LOG-${new Date().getTime().toString().slice(-8)}`;
       
       console.log(`[Submit] Appending to ActivityLog...`);
-      // LOG headers: ID, Timestamp, ActivityDate, Worker, Category, Activity, Notes, URL, Verifier, Remark, Status, Urgent
       await appendToSheet('ActivityLog', [
         newId,
         new Date().toISOString(),
@@ -52,8 +52,8 @@ export async function POST(req: NextRequest) {
         activityName,
         notes,
         screenshotUrl,
-        "", // Verifier
-        "", // Remark
+        "", 
+        "", 
         "Pending",
         isUrgent
       ]);
@@ -68,17 +68,17 @@ export async function POST(req: NextRequest) {
       const description = formData.get('description') as string;
       const isUrgent = formData.get('isUrgent') === 'true';
       
-      // Handle multiple images (up to 3)
       console.log(`[Submit] Processing images for TICKET...`);
       const images: string[] = [];
       for (let i = 1; i <= 3; i++) {
         const file = formData.get(`image${i}`) as File | null;
         if (file && file.size > 0) {
-          console.log(`[Submit] Uploading ticket image ${i}: ${file.name}`);
+          console.log(`[Submit] Uploading ticket image ${i}...`);
           const buffer = Buffer.from(await file.arrayBuffer());
           const fileName = `tickets/TKT_${reporter}_${i}_${Date.now()}.jpg`;
           const result = await uploadToStorage(buffer, fileName, file.type || 'image/jpeg');
           images.push(result.url);
+          console.log(`[Submit] Ticket image ${i} uploaded`);
         } else {
           images.push("");
         }
@@ -87,7 +87,6 @@ export async function POST(req: NextRequest) {
       const newId = `TKT-${new Date().getTime().toString().slice(-8)}`;
       
       console.log(`[Submit] Appending to IssueTickets...`);
-      // TICKET headers: ID, Timestamp, Reporter, Source, Category, Description, Img1, Img2, Img3, Urgent, Status
       await appendToSheet('IssueTickets', [
         newId,
         new Date().toISOString(),
