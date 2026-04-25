@@ -21,6 +21,7 @@ export async function getGoogleAuth(): Promise<any> {
   }
 
   // Handle newline characters and potential extra quotes from env variables
+  console.log(`[Auth] Using Service Account: ${clientEmail}`);
   const formattedPrivateKey = privateKey
     .trim()
     .replace(/^"|"$/g, '')
