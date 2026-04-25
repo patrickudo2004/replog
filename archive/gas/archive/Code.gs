@@ -14,7 +14,7 @@
 const CONFIG = {
   SPREADSHEET_ID: "1g2OrqI0kKSU7d8nF-ODKFJUt230lDnsrHYrifeniRzI",
   SCREENSHOT_FOLDER_ID: "1OiQNMJ9wCUlUUfFF1V5FdOG0JeiD07gE",
-  UPLOAD_TOKEN: "your_secret_token_here" // Must match GAS_UPLOAD_TOKEN in Vercel
+  UPLOAD_TOKEN: "wcm-av-upload-202" // Must match GAS_UPLOAD_TOKEN in Vercel
 };
 
 /**
