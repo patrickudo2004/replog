@@ -21,15 +21,23 @@ export async function GET(req: NextRequest) {
     const drive = await getDriveClient();
     
     // Fetch the file from Google Drive
+    // supportsAllDrives: true ensures we can see files shared with us in folders
+    // acknowledgeAbuse: true bypasses potential automated security flags
     const response = await drive.files.get(
-      { fileId: fileId, alt: 'media' },
+      { 
+        fileId: fileId, 
+        alt: 'media',
+        supportsAllDrives: true,
+        acknowledgeAbuse: true
+      },
       { responseType: 'stream' }
     );
 
     // Get metadata to set correct content type
     const metadata = await drive.files.get({
       fileId: fileId,
-      fields: 'mimeType,name'
+      fields: 'mimeType,name',
+      supportsAllDrives: true
     });
 
     // Create a readable stream from the response
@@ -44,7 +52,10 @@ export async function GET(req: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error('[ImageProxy] Error:', error.message);
+    console.error(`[ImageProxy] Error for ID ${fileId}:`, error.message);
+    if (error.response) {
+      console.error(`[ImageProxy] API Response:`, JSON.stringify(error.response.data));
+    }
     return new NextResponse('Image not found or unauthorized', { status: 404 });
   }
 }
