@@ -1,6 +1,9 @@
 {
   "name": "replog-monorepo",
   "private": true,
+  "engines": {
+    "node": ">=20.0.0 <23.0.0"
+  },
   "workspaces": [
     "av-portal"
   ],
