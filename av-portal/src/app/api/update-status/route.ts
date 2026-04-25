@@ -3,6 +3,7 @@ import { updateItemStatus } from '@/lib/sheets';
 import { uploadToStorage } from '@/lib/storage';
 
 export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
   try {

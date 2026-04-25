@@ -23,19 +23,20 @@ export async function uploadToStorage(
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ base64Data, fileName, mimeType, token: GAS_TOKEN }),
-    // GAS web apps do internal redirects — must follow them
     redirect: 'follow',
   });
 
-  // GAS always returns 200 even for errors — check body
+  console.log(`[Upload] GAS Response Status: ${response.status}`);
+
   const text = await response.text();
+  console.log(`[Upload] GAS Response Text (start): ${text.slice(0, 100)}`);
 
   let data: { success: boolean; url: string; error?: string };
   try {
     data = JSON.parse(text);
   } catch {
     console.error('[Upload] GAS returned non-JSON:', text.slice(0, 500));
-    throw new Error('GAS upload returned an unexpected response');
+    throw new Error('GAS upload returned an unexpected response (non-JSON)');
   }
 
   if (!data.success) {

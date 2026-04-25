@@ -4,6 +4,7 @@ import { appendToSheet } from '@/lib/sheets';
 
 
 export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
 
 
 /**
@@ -37,6 +38,7 @@ export async function POST(req: NextRequest) {
 
       const newId = `LOG-${new Date().getTime().toString().slice(-8)}`;
       
+      console.log(`[Submit] Appending to ActivityLog...`);
       // LOG headers: ID, Timestamp, ActivityDate, Worker, Category, Activity, Notes, URL, Verifier, Remark, Status, Urgent
       await appendToSheet('ActivityLog', [
         newId,
@@ -53,6 +55,7 @@ export async function POST(req: NextRequest) {
         isUrgent
       ]);
 
+      console.log(`[Submit] LOG Success: ${newId}`);
       return NextResponse.json({ success: true, id: newId });
 
     } else if (type === 'TICKET') {
@@ -63,10 +66,12 @@ export async function POST(req: NextRequest) {
       const isUrgent = formData.get('isUrgent') === 'true';
       
       // Handle multiple images (up to 3)
+      console.log(`[Submit] Processing images for TICKET...`);
       const images: string[] = [];
       for (let i = 1; i <= 3; i++) {
         const file = formData.get(`image${i}`) as File | null;
         if (file && file.size > 0) {
+          console.log(`[Submit] Uploading ticket image ${i}: ${file.name}`);
           const buffer = Buffer.from(await file.arrayBuffer());
           const fileName = `tickets/TKT_${reporter}_${i}_${Date.now()}.jpg`;
           const result = await uploadToStorage(buffer, fileName, file.type || 'image/jpeg');
@@ -78,6 +83,7 @@ export async function POST(req: NextRequest) {
 
       const newId = `TKT-${new Date().getTime().toString().slice(-8)}`;
       
+      console.log(`[Submit] Appending to IssueTickets...`);
       // TICKET headers: ID, Timestamp, Reporter, Source, Category, Description, Img1, Img2, Img3, Urgent, Status
       await appendToSheet('IssueTickets', [
         newId,
@@ -93,13 +99,14 @@ export async function POST(req: NextRequest) {
         "Pending"
       ]);
 
+      console.log(`[Submit] TICKET Success: ${newId}`);
       return NextResponse.json({ success: true, id: newId });
     }
 
     return NextResponse.json({ error: 'Invalid submission type' }, { status: 400 });
 
   } catch (error) {
-    console.error('Submission Error:', error);
+    console.error('[Submit] Critical Error:', error);
     const message = error instanceof Error ? error.message : 'Internal Server Error';
     return NextResponse.json({ error: message }, { status: 500 });
   }
