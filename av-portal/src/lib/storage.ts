@@ -1,6 +1,8 @@
+import { uploadToDrive } from './drive';
+
 /**
  * Winners Chapel Manchester - AV Technical Portal
- * Image Upload via GAS Web App (runs as real Google user — uses Drive quota correctly)
+ * Image Upload via Google Drive API (Unified Service Account)
  */
 
 export async function uploadToStorage(
@@ -8,51 +10,18 @@ export async function uploadToStorage(
   fileName: string,
   mimeType: string
 ): Promise<{ url: string }> {
-  const GAS_URL = process.env.GAS_UPLOAD_URL;
-  const GAS_TOKEN = process.env.GAS_UPLOAD_TOKEN;
-
-  if (!GAS_URL) {
-    throw new Error('GAS_UPLOAD_URL is not configured in environment variables');
-  }
-
-  console.log(`[Upload] Using GAS URL (redacted): ${GAS_URL.substring(0, 30)}... [Length: ${GAS_URL.length}]`);
-  console.log(`[Upload] Token present: ${!!GAS_TOKEN} [Length: ${GAS_TOKEN?.length}]`);
-  
-  console.log(`[Upload] Sending ${fileName} (${buffer.length} bytes) to GAS...`);
-
-  const base64Data = buffer.toString('base64');
-
-  let response;
   try {
-    response = await fetch(GAS_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ base64Data, fileName, mimeType, token: GAS_TOKEN }),
-      redirect: 'follow',
-    });
-  } catch (fetchErr: any) {
-    console.error('[Upload] Fetch Error:', fetchErr);
-    throw new Error(`Connection to GAS failed: ${fetchErr.message}`);
+    console.log(`[Storage] Uploading ${fileName} to Google Drive...`);
+    const result = await uploadToDrive(buffer, fileName, mimeType);
+    
+    if (!result.url) {
+      throw new Error('Upload succeeded but no URL was returned');
+    }
+
+    console.log(`[Storage] Success: ${result.url}`);
+    return { url: result.url };
+  } catch (error: any) {
+    console.error('[Storage] Critical Upload Failure:', error.message);
+    throw new Error(`Drive Upload Failed: ${error.message}`);
   }
-
-  console.log(`[Upload] GAS Response Status: ${response.status}`);
-
-  const text = await response.text();
-  console.log(`[Upload] GAS Response Text (start): ${text.slice(0, 100)}`);
-
-  let data: { success: boolean; url: string; error?: string };
-  try {
-    data = JSON.parse(text);
-  } catch {
-    console.error('[Upload] GAS returned non-JSON:', text.slice(0, 500));
-    throw new Error('GAS upload returned an unexpected response (non-JSON)');
-  }
-
-  if (!data.success) {
-    console.error('[Upload] GAS error:', data.error);
-    throw new Error(data.error || 'GAS upload failed');
-  }
-
-  console.log(`[Upload] Success: ${data.url}`);
-  return { url: data.url };
 }

@@ -20,9 +20,6 @@ export async function getGoogleAuth(): Promise<any> {
     return null;
   }
 
-  console.log(`[Auth] Email present: ${clientEmail.substring(0, 5)}...`);
-  console.log(`[Auth] Key starts with: ${privateKey.substring(0, 20)}...`);
-
   // Handle newline characters and potential extra quotes from env variables
   const formattedPrivateKey = privateKey
     .trim()
