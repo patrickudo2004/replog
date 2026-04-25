@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { CheckCircle2, X, Loader2 } from 'lucide-react';
 import { FeedItem } from '@/types';
 import FileUploader from './FileUploader';
+import { getProxyUrl } from '@/lib/utils';
 
 interface ReviewModalProps {
   item: FeedItem;
@@ -89,7 +90,7 @@ export default function ReviewModal({ item, onClose, onSuccess }: ReviewModalPro
             {item.imageUrl && (
               <div className="mb-6 rounded-2xl overflow-hidden border border-border bg-muted/20">
                 <img 
-                  src={item.imageUrl} 
+                  src={getProxyUrl(item.imageUrl)} 
                   alt="Proof" 
                   className="w-full h-40 object-cover hover:scale-105 transition-transform cursor-pointer"
                   onClick={() => window.open(item.imageUrl, '_blank')}

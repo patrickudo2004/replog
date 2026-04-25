@@ -23,7 +23,7 @@ import ActivityForm from './ActivityForm';
 import TicketForm from './TicketForm';
 import SuccessScreen from './SuccessScreen';
 import ReviewModal from './ReviewModal';
-import { cn } from '@/lib/utils';
+import { cn, getProxyUrl } from '@/lib/utils';
 
 interface StatCardProps {
   title: string;
@@ -284,7 +284,7 @@ export default function Dashboard() {
                           className="w-12 h-12 rounded-2xl overflow-hidden flex-shrink-0 cursor-pointer"
                           onClick={(e) => { e.stopPropagation(); window.open(item.imageUrl, '_blank'); }}
                         >
-                          <img src={item.imageUrl} alt="Proof" className="w-full h-full object-cover" />
+                          <img src={getProxyUrl(item.imageUrl)} alt="Proof" className="w-full h-full object-cover" />
                         </div>
                       ) : (
                         <div className={cn(

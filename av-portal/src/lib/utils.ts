@@ -69,3 +69,22 @@ export async function processImage(file: File): Promise<File> {
     reader.onerror = () => resolve(file); // fallback
   });
 }
+
+/**
+ * Converts a Google Drive URL or ID to a secure local proxy URL
+ */
+export function getProxyUrl(urlOrId: string | undefined): string {
+  if (!urlOrId) return '';
+  
+  // If it's already a proxy URL, return it
+  if (urlOrId.startsWith('/api/image-proxy')) return urlOrId;
+
+  // Extract ID from various Google Drive URL formats
+  let id = urlOrId;
+  const idMatch = urlOrId.match(/(?:id=|\/d\/|d\/)([a-zA-Z0-9_-]{25,})/);
+  if (idMatch) {
+    id = idMatch[1];
+  }
+
+  return `/api/image-proxy?id=${id}`;
+}
