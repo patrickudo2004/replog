@@ -22,6 +22,7 @@ export interface IssueTicket {
   timestamp: number;
   status: string;
   isUrgent: boolean;
+  imageUrl?: string;
 }
 
 export type FeedItem = ActivityLog | IssueTicket;
