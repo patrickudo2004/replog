@@ -15,6 +15,8 @@ export async function uploadToStorage(
     throw new Error('GAS_UPLOAD_URL is not configured in environment variables');
   }
 
+  console.log(`[Upload] Using GAS URL: ${GAS_URL.substring(0, 30)}...`);
+
   console.log(`[Upload] Sending ${fileName} (${buffer.length} bytes) to GAS...`);
 
   const base64Data = buffer.toString('base64');
