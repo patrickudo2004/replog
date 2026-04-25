@@ -107,12 +107,17 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ error: 'Invalid submission type' }, { status: 400 });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('[Submit] Critical Error:', error);
-    const message = error instanceof Error ? error.message : 'Internal Server Error';
+    // Log more properties if they exist
+    if (error.response) {
+      console.error('[Submit] Error Response:', error.response.status, error.response.data);
+    }
+    const message = error.message || 'Internal Server Error';
     return NextResponse.json({ 
       error: message,
-      details: error instanceof Error ? error.stack : undefined
+      details: error.stack,
+      raw: JSON.parse(JSON.stringify(error, Object.getOwnPropertyNames(error)))
     }, { status: 500 });
   }
 }
