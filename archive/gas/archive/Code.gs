@@ -42,8 +42,8 @@ function doPost(e) {
     };
     Drive.Permissions.create(permission, file.id);
     
-    // Build the DIRECT IMAGE LINK (The "lh3" trick works best for embedding)
-    const directUrl = "https://lh3.googleusercontent.com/d/" + file.id;
+    // Build the DIRECT IMAGE LINK (Standard Google Drive direct link)
+    const directUrl = "https://drive.google.com/uc?export=view&id=" + file.id;
     
     return createJsonResponse({
       success: true,
