@@ -1,4 +1,3 @@
-import { google } from 'googleapis';
 import { getGoogleAuth } from './google-auth';
 
 /**
@@ -6,8 +5,8 @@ import { getGoogleAuth } from './google-auth';
  * Google Sheets API Helper logic
  */
 
-
 export async function getSheetsClient() {
+  const { google } = await import('googleapis');
   const auth = await getGoogleAuth();
   if (!auth) throw new Error('GOOGLE_AUTH_FAILED: Missing credentials');
   return google.sheets({ version: 'v4', auth: auth as any });

@@ -1,5 +1,3 @@
-import { google } from 'googleapis';
-
 /**
  * Winners Chapel Manchester - AV Technical Portal
  * Centralized Google Authentication using Service Account
@@ -11,6 +9,7 @@ const SCOPES = [
 ];
 
 export async function getGoogleAuth() {
+  const { google } = await import('googleapis');
   const clientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
   const privateKey = process.env.GOOGLE_PRIVATE_KEY;
 
