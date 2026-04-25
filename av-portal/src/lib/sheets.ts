@@ -82,6 +82,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
       timestamp: new Date(r[1]).getTime(),
       status: r[10],
       isUrgent: r[11] === 'TRUE',
+      imageUrl: r[7], // Column H
     })),
     ...tickets.map(r => ({
       id: r[0],
@@ -91,6 +92,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
       timestamp: new Date(r[1]).getTime(),
       status: r[10],
       isUrgent: r[9] === 'TRUE',
+      imageUrl: r[6], // Column G (Image 1)
     }))
   ].sort((a, b) => b.timestamp - a.timestamp).slice(0, 10);
   

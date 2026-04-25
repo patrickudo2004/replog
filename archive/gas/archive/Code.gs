@@ -26,16 +26,17 @@ function doPost(e) {
     const decodedData = Utilities.base64Decode(base64Data);
     const blob = Utilities.newBlob(decodedData, mimeType || 'image/jpeg', fileName);
     
-    // In v3, metadata and media are handled differently
     const fileMetadata = {
       name: fileName,
       parents: [CONFIG.SCREENSHOT_FOLDER_ID]
     };
     
-    // Create the file
-    const file = Drive.Files.create(fileMetadata, blob);
+    // CRITICAL: Must specify 'fields' to get the webViewLink back in v3
+    const file = Drive.Files.create(fileMetadata, blob, {
+      fields: 'id, webViewLink, webContentLink'
+    });
     
-    // Set public permissions in v3
+    // Set public permissions
     const permission = {
       role: 'reader',
       type: 'anyone'
@@ -68,7 +69,8 @@ function testSetup() {
     
     const files = Drive.Files.list({
       q: "'" + CONFIG.SCREENSHOT_FOLDER_ID + "' in parents",
-      pageSize: 1
+      pageSize: 1,
+      fields: 'files(id, name)'
     });
     console.log("Drive API v3 check: Success.");
     

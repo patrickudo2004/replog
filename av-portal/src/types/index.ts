@@ -11,6 +11,7 @@ export interface ActivityLog {
   timestamp: number;
   status: string;
   isUrgent: boolean;
+  imageUrl?: string;
 }
 
 export interface IssueTicket {
