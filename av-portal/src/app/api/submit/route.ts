@@ -13,8 +13,10 @@ export const maxDuration = 60;
  */
 
 export async function POST(req: NextRequest) {
+  console.log('[Submit] POST Request received');
   try {
     const formData = await req.formData();
+    console.log('[Submit] FormData parsed');
     const type = formData.get('type') as string; // 'LOG' or 'TICKET'
 
     if (type === 'LOG') {
