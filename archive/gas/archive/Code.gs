@@ -40,7 +40,7 @@ function doPost(e) {
     const saPermission = {
       role: 'reader',
       type: 'user',
-      value: CONFIG.SERVICE_ACCOUNT
+      emailAddress: CONFIG.SERVICE_ACCOUNT
     };
     Drive.Permissions.create(saPermission, file.id);
     
