@@ -1,12 +1,14 @@
 /**
  * Winners Chapel Manchester - AV Technical Portal
- * Hybrid GAS Backend (Direct API v3 Version - Direct Link Fix)
+ * Hybrid GAS Backend (Direct API v3 Version - Service Account Handshake)
  */
 
 const CONFIG = {
   SPREADSHEET_ID: "1g2OrqI0kKSU7d8nF-ODKFJUt230lDnsrHYrifeniRzI",
   SCREENSHOT_FOLDER_ID: "1OiQNMJ9wCUlUUfFF1V5FdOG0JeiD07gE",
-  UPLOAD_TOKEN: "wcm-av-upload-202"
+  UPLOAD_TOKEN: "wcm-av-upload-202",
+  // YOUR SERVICE ACCOUNT EMAIL
+  SERVICE_ACCOUNT: "first-project@studious-matrix-483021-p5.iam.gserviceaccount.com"
 };
 
 function doPost(e) {
@@ -30,29 +32,33 @@ function doPost(e) {
       parents: [CONFIG.SCREENSHOT_FOLDER_ID]
     };
     
-    // Create the file
-    const file = Drive.Files.create(fileMetadata, blob, {
-      fields: 'id' // We only need the ID to build the direct link
-    });
+    // 1. Create the file
+    const file = Drive.Files.create(fileMetadata, blob, { fields: 'id' });
     
-    // Set public permissions (Anyone with link can view)
-    const permission = {
+    // 2. EXPLICIT HANDSHAKE: Share specifically with the Service Account
+    // This is what will fix the 404 error in the proxy!
+    const saPermission = {
+      role: 'reader',
+      type: 'user',
+      value: CONFIG.SERVICE_ACCOUNT
+    };
+    Drive.Permissions.create(saPermission, file.id);
+    
+    // 3. Keep public permission as backup
+    const publicPermission = {
       role: 'reader',
       type: 'anyone'
     };
-    Drive.Permissions.create(permission, file.id);
-    
-    // Build the DIRECT IMAGE LINK (Standard Google Drive direct link)
-    const directUrl = "https://drive.google.com/uc?export=view&id=" + file.id;
+    Drive.Permissions.create(publicPermission, file.id);
     
     return createJsonResponse({
       success: true,
-      url: directUrl
+      url: "https://drive.google.com/uc?export=view&id=" + file.id
     });
 
   } catch (err) {
     console.error("Upload Error: " + err.toString());
-    return createJsonResponse({ success: false, error: "GAS API v3 Error: " + err.toString() });
+    return createJsonResponse({ success: false, error: "GAS API Handshake Error: " + err.toString() });
   }
 }
 
