@@ -21,12 +21,18 @@ export async function uploadToStorage(
 
   const base64Data = buffer.toString('base64');
 
-  const response = await fetch(GAS_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ base64Data, fileName, mimeType, token: GAS_TOKEN }),
-    redirect: 'follow',
-  });
+  let response;
+  try {
+    response = await fetch(GAS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ base64Data, fileName, mimeType, token: GAS_TOKEN }),
+      redirect: 'follow',
+    });
+  } catch (fetchErr: any) {
+    console.error('[Upload] Fetch Error:', fetchErr);
+    throw new Error(`Connection to GAS failed: ${fetchErr.message}`);
+  }
 
   console.log(`[Upload] GAS Response Status: ${response.status}`);
 
