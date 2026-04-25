@@ -108,6 +108,9 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('[Submit] Critical Error:', error);
     const message = error instanceof Error ? error.message : 'Internal Server Error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ 
+      error: message,
+      details: error instanceof Error ? error.stack : undefined
+    }, { status: 500 });
   }
 }
