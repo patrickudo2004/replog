@@ -1,20 +1,17 @@
 /**
  * Winners Chapel Manchester - AV Technical Portal
- * Hybrid GAS Backend (Handles Image Uploads)
+ * Hybrid GAS Backend (Direct API Version)
  * 
  * Instructions:
- * 1. Open your Google Apps Script editor.
+ * 1. Add "Drive API" to Services (Left Sidebar -> + -> Drive API -> Add).
  * 2. Paste this code.
- * 3. Set a secure token in CONFIG.UPLOAD_TOKEN.
- * 4. Deploy as "Web App".
- * 5. Set "Execute as: Me" and "Who has access: Anyone".
- * 6. Copy the Web App URL to your Vercel/Local env as GAS_UPLOAD_URL.
+ * 3. Deploy as "Web App" (Execute as: Me, Access: Anyone).
  */
 
 const CONFIG = {
   SPREADSHEET_ID: "1g2OrqI0kKSU7d8nF-ODKFJUt230lDnsrHYrifeniRzI",
   SCREENSHOT_FOLDER_ID: "1OiQNMJ9wCUlUUfFF1V5FdOG0JeiD07gE",
-  UPLOAD_TOKEN: "wcm-av-upload-202" // Must match GAS_UPLOAD_TOKEN in Vercel
+  UPLOAD_TOKEN: "wcm-av-upload-202"
 };
 
 /**
@@ -34,23 +31,33 @@ function doPost(e) {
       return createJsonResponse({ success: false, error: "No image data provided" });
     }
 
-    // Process image
-    const folder = DriveApp.getFolderById(CONFIG.SCREENSHOT_FOLDER_ID);
-    const decodedData = Utilities.base64Decode(base64Data);
-    const blob = Utilities.newBlob(decodedData, mimeType, fileName);
+    // Direct Drive API Upload (Bypasses DriveApp security blocks)
+    const resource = {
+      title: fileName,
+      mimeType: mimeType || 'image/jpeg',
+      parents: [{ id: CONFIG.SCREENSHOT_FOLDER_ID }]
+    };
     
-    const file = folder.createFile(blob);
+    const mediaData = Utilities.base64Decode(base64Data);
     
-    // Set sharing so images are viewable in the sheet
-    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    // Using Advanced Drive Service (Drive API v2)
+    const file = Drive.Files.insert(resource, mediaData);
+    
+    // Set public permissions via API
+    const permission = {
+      role: 'reader',
+      type: 'anyone'
+    };
+    Drive.Permissions.insert(permission, file.id);
     
     return createJsonResponse({
       success: true,
-      url: file.getUrl()
+      url: file.alternateLink || file.webViewLink
     });
 
   } catch (err) {
-    return createJsonResponse({ success: false, error: "GAS Error: " + err.toString() });
+    console.error("Upload Error: " + err.toString());
+    return createJsonResponse({ success: false, error: "GAS API Error: " + err.toString() });
   }
 }
 
@@ -63,18 +70,21 @@ function createJsonResponse(data) {
 }
 
 /**
- * Test function to verify folder and sheet access
- * Run this manually in the editor to check for permissions
+ * Test function to verify access
  */
 function testSetup() {
   try {
-    const folder = DriveApp.getFolderById(CONFIG.SCREENSHOT_FOLDER_ID);
-    console.log("Connected to folder: " + folder.getName());
-    
     const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
     console.log("Connected to spreadsheet: " + ss.getName());
     
-    return "Setup is valid!";
+    // Check Drive API access by listing files in folder
+    const files = Drive.Files.list({
+      q: "'" + CONFIG.SCREENSHOT_FOLDER_ID + "' in parents and trashed = false",
+      maxResults: 1
+    });
+    console.log("Drive API check: Success. Found " + (files.items ? files.items.length : 0) + " files.");
+    
+    return "Direct API Setup is valid!";
   } catch (e) {
     console.error("Setup Error: " + e.toString());
     return "Error: " + e.toString();
