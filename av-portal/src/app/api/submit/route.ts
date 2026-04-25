@@ -14,6 +14,7 @@ export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
   console.log('[Submit] POST Request received');
+  console.log('[Submit] Headers:', JSON.stringify(Object.fromEntries(req.headers.entries())));
   try {
     const formData = await req.formData();
     console.log('[Submit] FormData parsed');
