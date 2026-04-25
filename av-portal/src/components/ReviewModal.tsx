@@ -84,7 +84,18 @@ export default function ReviewModal({ item, onClose, onSuccess }: ReviewModalPro
             </button>
             
             <h2 className="text-xl font-bold mb-1">{item.type === 'LOG' ? 'Confirm Activity' : 'Resolve Ticket'}</h2>
-            <p className="text-sm text-muted mb-6 pr-8">Reviewing <span className="font-semibold text-foreground">{item.title}</span> by {item.user}</p>
+            <p className="text-sm text-muted mb-4 pr-8">Reviewing <span className="font-semibold text-foreground">{item.title}</span> by {item.user}</p>
+            
+            {item.imageUrl && (
+              <div className="mb-6 rounded-2xl overflow-hidden border border-border bg-muted/20">
+                <img 
+                  src={item.imageUrl} 
+                  alt="Proof" 
+                  className="w-full h-40 object-cover hover:scale-105 transition-transform cursor-pointer"
+                  onClick={() => window.open(item.imageUrl, '_blank')}
+                />
+              </div>
+            )}
             
             {isLoadingData ? (
               <div className="flex justify-center p-10"><Loader2 className="animate-spin text-primary" /></div>

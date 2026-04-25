@@ -279,12 +279,21 @@ export default function Dashboard() {
                 ) : (stats?.feed && Array.isArray(stats.feed) && stats.feed.length > 0) ? (
                   stats.feed.slice(0, 5).map((item: any) => (
                     <div key={item.id} className="flex items-start gap-4 p-4 bg-white/40 glass rounded-3xl border border-border group hover:bg-white/60 transition-all">
-                      <div className={cn(
-                        "w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0",
-                        item.type === 'LOG' ? "bg-success/10 text-success" : "bg-urgent/10 text-urgent"
-                      )}>
-                        {item.type === 'LOG' ? <CheckCircle2 size={24} /> : <AlertCircle size={24} />}
-                      </div>
+                      {item.imageUrl ? (
+                        <div 
+                          className="w-12 h-12 rounded-2xl overflow-hidden flex-shrink-0 cursor-pointer"
+                          onClick={(e) => { e.stopPropagation(); window.open(item.imageUrl, '_blank'); }}
+                        >
+                          <img src={item.imageUrl} alt="Proof" className="w-full h-full object-cover" />
+                        </div>
+                      ) : (
+                        <div className={cn(
+                          "w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0",
+                          item.type === 'LOG' ? "bg-success/10 text-success" : "bg-urgent/10 text-urgent"
+                        )}>
+                          {item.type === 'LOG' ? <CheckCircle2 size={24} /> : <AlertCircle size={24} />}
+                        </div>
+                      )}
                       <div className="flex-1 min-w-0">
                         <h4 className="text-[15px] font-bold truncate text-foreground pr-2">{item.title}</h4>
                         <p className="text-[11px] text-muted flex items-center gap-1">
