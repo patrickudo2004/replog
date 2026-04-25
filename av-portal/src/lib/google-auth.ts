@@ -1,3 +1,5 @@
+import { OAuth2Client, GoogleAuth } from 'google-auth-library';
+
 /**
  * Winners Chapel Manchester - AV Technical Portal
  * Centralized Google Authentication using Service Account
@@ -8,7 +10,7 @@ const SCOPES = [
   'https://www.googleapis.com/auth/drive.file'
 ];
 
-export async function getGoogleAuth() {
+export async function getGoogleAuth(): Promise<any> {
   const { google } = await import('googleapis');
   const clientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
   const privateKey = process.env.GOOGLE_PRIVATE_KEY;

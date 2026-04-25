@@ -15,7 +15,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    const updateData: any = {};
+    const updateData: {
+      verifier?: string;
+      remark?: string;
+      resolver?: string;
+      resNotes?: string;
+      resImage?: string;
+    } = {};
 
     if (type === 'LOG') {
       updateData.verifier = formData.get('verifier') as string;
@@ -36,8 +42,9 @@ export async function POST(req: NextRequest) {
     await updateItemStatus(type, id, newStatus, updateData);
     
     return NextResponse.json({ success: true });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Update Status Error:', error);
-    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Internal Server Error';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

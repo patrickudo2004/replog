@@ -4,10 +4,11 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { motion } from 'framer-motion';
 import { CheckCircle2, X, Loader2 } from 'lucide-react';
+import { FeedItem } from '@/types';
 import FileUploader from './FileUploader';
 
 interface ReviewModalProps {
-  item: any;
+  item: FeedItem;
   onClose: () => void;
   onSuccess: () => void;
 }
@@ -32,7 +33,7 @@ export default function ReviewModal({ item, onClose, onSuccess }: ReviewModalPro
       });
   }, []);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: Record<string, string>) => {
     if (isSelfReview) return;
     setIsSubmitting(true);
     
@@ -58,10 +59,11 @@ export default function ReviewModal({ item, onClose, onSuccess }: ReviewModalPro
       if (res.ok) {
         onSuccess();
       } else {
-        const err = await res.json();
+        const err: { error?: string } = await res.json();
         alert('Update failed: ' + (err.error || 'Unknown error'));
       }
-    } catch (e) {
+    } catch (error) {
+      console.error('Update failed:', error);
       alert('An error occurred.');
     } finally {
       setIsSubmitting(false);

@@ -30,7 +30,7 @@ export async function uploadToStorage(
   // GAS always returns 200 even for errors — check body
   const text = await response.text();
 
-  let data: any;
+  let data: { success: boolean; url: string; error?: string };
   try {
     data = JSON.parse(text);
   } catch {

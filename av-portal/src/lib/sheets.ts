@@ -1,3 +1,4 @@
+import { DashboardStats } from '@/types';
 import { getGoogleAuth } from './google-auth';
 
 /**
@@ -9,10 +10,10 @@ export async function getSheetsClient() {
   const { google } = await import('googleapis');
   const auth = await getGoogleAuth();
   if (!auth) throw new Error('GOOGLE_AUTH_FAILED: Missing credentials');
-  return google.sheets({ version: 'v4', auth: auth as any });
+  return google.sheets({ version: 'v4', auth: auth });
 }
 
-export async function appendToSheet(sheetName: string, values: any[]) {
+export async function appendToSheet(sheetName: string, values: (string | number | boolean)[]) {
   const sheets = await getSheetsClient();
   const SHEET_ID = process.env.GOOGLE_SHEET_ID;
   if (!SHEET_ID) throw new Error('GOOGLE_SHEET_ID is not defined');
@@ -27,7 +28,7 @@ export async function appendToSheet(sheetName: string, values: any[]) {
   });
 }
 
-export async function getDashboardStats() {
+export async function getDashboardStats(): Promise<DashboardStats> {
   const sheets = await getSheetsClient();
   const SHEET_ID = process.env.GOOGLE_SHEET_ID;
   if (!SHEET_ID) throw new Error('GOOGLE_SHEET_ID is not defined');
@@ -72,10 +73,10 @@ export async function getDashboardStats() {
     .map(([name, count]) => ({ name, count }));
 
   // Unified feed logic: combine logs and tickets, sort by timestamp
-  const unifiedFeed = [
+  const unifiedFeed: import('@/types').FeedItem[] = [
     ...logs.map(r => ({
       id: r[0],
-      type: 'LOG',
+      type: 'LOG' as const,
       title: r[5],
       user: r[3],
       timestamp: new Date(r[1]).getTime(),
@@ -84,7 +85,7 @@ export async function getDashboardStats() {
     })),
     ...tickets.map(r => ({
       id: r[0],
-      type: 'TICKET',
+      type: 'TICKET' as const,
       title: `${r[4]}: ${r[5]?.substring(0, 30)}...`,
       user: r[2],
       timestamp: new Date(r[1]).getTime(),

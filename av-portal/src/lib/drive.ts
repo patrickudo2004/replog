@@ -1,4 +1,3 @@
-import { google } from 'googleapis';
 import { getGoogleAuth } from './google-auth';
 import { PassThrough } from 'stream';
 
@@ -8,9 +7,10 @@ import { PassThrough } from 'stream';
  */
 
 export async function getDriveClient() {
+  const { google } = await import('googleapis');
   const auth = await getGoogleAuth();
   if (!auth) throw new Error('GOOGLE_AUTH_FAILED: Missing credentials');
-  return google.drive({ version: 'v3', auth: auth as any });
+  return google.drive({ version: 'v3', auth: auth });
 }
 
 export async function uploadToDrive(buffer: Buffer, fileName: string, mimeType: string) {
@@ -50,10 +50,11 @@ export async function uploadToDrive(buffer: Buffer, fileName: string, mimeType: 
       id: response.data.id,
       url: response.data.webViewLink,
     };
-  } catch (err: any) {
-    console.error('[Drive] Upload failed:', err.message);
-    if (err.response) {
-      console.error('[Drive] API response:', JSON.stringify(err.response.data));
+  } catch (err) {
+    const error = err as { message?: string; response?: { data?: any } };
+    console.error('[Drive] Upload failed:', error.message);
+    if (error.response) {
+      console.error('[Drive] API response:', JSON.stringify(error.response.data));
     }
     throw err;
   }

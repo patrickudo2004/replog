@@ -18,7 +18,7 @@ export default function TicketForm({ onBack, onSuccess }: TicketFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [images, setImages] = useState<(File | null)[]>([null, null, null]);
 
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const { register, handleSubmit } = useForm();
 
   useEffect(() => {
     fetch('/api/form-data')
@@ -43,7 +43,7 @@ export default function TicketForm({ onBack, onSuccess }: TicketFormProps) {
     setImages(newImages);
   };
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: Record<string, string>) => {
     setIsSubmitting(true);
     const formData = new FormData();
     formData.append('type', 'TICKET');
@@ -68,7 +68,7 @@ export default function TicketForm({ onBack, onSuccess }: TicketFormProps) {
         alert('Submission failed.');
       }
     } catch (error) {
-      console.error(error);
+      console.error('Submission failed:', error);
       alert('An error occurred.');
     } finally {
       setIsSubmitting(false);
