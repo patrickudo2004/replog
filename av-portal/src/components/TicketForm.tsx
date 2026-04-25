@@ -65,7 +65,8 @@ export default function TicketForm({ onBack, onSuccess }: TicketFormProps) {
       if (res.ok) {
         onSuccess();
       } else {
-        alert('Submission failed.');
+        const errorData = await res.json();
+        alert(`Submission failed: ${errorData.error || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Submission failed:', error);

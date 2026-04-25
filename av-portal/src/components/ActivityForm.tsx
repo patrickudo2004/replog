@@ -58,7 +58,8 @@ export default function ActivityForm({ onBack, onSuccess }: ActivityFormProps) {
       if (res.ok) {
         onSuccess();
       } else {
-        alert('Submission failed. Please check your connection.');
+        const errorData = await res.json();
+        alert(`Submission failed: ${errorData.error || 'Unknown error'}`);
       }
     } catch (error) {
       console.error(error);
