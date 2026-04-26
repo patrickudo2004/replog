@@ -1,65 +1,37 @@
-# Winners Chapel Manchester - AV Technical Portal
+# ⛪ Winners Chapel Manchester - AV Technical Portal
 
-A high-performance, mobile-first Next.js application designed for the AV & IT subunit to log weekly activities and report technical issues. This portal synchronizes data in real-time with Google Sheets and Google Drive.
+A professional management suite for the Audio-Visual team at Winners Chapel Manchester. This portal streamlines the tracking of technical logs, equipment issues, and team performance.
 
-## 🚀 Key Features
+![Portal UI](https://lh3.googleusercontent.com/d/1PnzuJKAgogeB4JMUPBLGEQZECTQk8BUh)
 
-- **Activity Logging**: Log weekly tasks with categories, implementation notes, and verifier remarks.
-- **Issue Reporting**: Submit technical tickets with up to 3 image attachments and urgency tagging.
-- **Unified Live Feed**: Real-time dashboard showing the latest activities and open tickets across the team.
-- **HEIC Support**: Automatic conversion of iPhone (HEIC) images to JPEG for cross-platform compatibility.
-- **Premium Design**: Modern, glassmorphism-inspired UI with smooth animations and dark mode support.
+## 🚀 Features
+- **Unified Activity Logs**: Track system startups, startups, and technical tasks.
+- **Ticketing System**: Report and track equipment issues with photo evidence.
+- **iPhone Optimized**: Automatic HEIC to JPEG conversion and image compression.
+- **Leaderboard**: Gamified team participation tracking.
+- **Secure Image Hosting**: Custom-built proxy for reliable Google Drive image previews.
+- **Premium Design**: Dark-mode first, glassmorphic UI built with Next.js and Framer Motion.
 
-## 🛠️ Setup Instructions
+## 🛠️ Tech Stack
+- **Frontend**: Next.js 14, Tailwind CSS, Lucide Icons, Framer Motion.
+- **Backend**: Next.js API Routes (Serverless).
+- **Storage**: Google Sheets (Database) & Google Drive (Images).
+- **Bridge**: Google Apps Script (GAS) for high-quota image uploads.
+- **Deployment**: Vercel & GitHub.
 
-### 1. Prerequisites
-- Node.js 20.9.0 or higher
-- A Google Cloud Project with Sheets and Drive APIs enabled
-- A Service Account with "Editor" access to your Google Sheet and Drive Folder
+## 📁 Repository Structure
+- `/av-portal`: The main Next.js web application.
+- `/archive/gas`: Contains the Google Apps Script bridge code.
+- `SETUP_GUIDE.md`: Comprehensive instructions for deploying to a new environment.
 
-### 2. Environment Configuration
-Create a `.env.local` file in the `av-portal` directory with the following keys:
-```env
-# Google Sheets Configuration
-GOOGLE_SHEET_ID=your_sheet_id_here
+## ⚙️ Quick Setup
+1. Clone the repository.
+2. Install dependencies: `npm install`.
+3. Set up environment variables (see `SETUP_GUIDE.md`).
+4. Run locally: `npm run dev`.
 
-# Google Drive Configuration
-GOOGLE_DRIVE_FOLDER_ID=your_folder_id_here
-
-# Google Service Account Credentials
-GOOGLE_SERVICE_ACCOUNT_EMAIL=your_service_account_email
-GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----"
-```
-
-### 3. Installation
-```bash
-cd av-portal
-npm install
-```
-
-### 4. Development
-```bash
-npm run dev
-```
-
-### 5. Production Build
-```bash
-npm run build
-```
-
-## 📖 Usage Guide
-
-1. **Accessing the Portal**: Open the application on your mobile or desktop.
-2. **Logging Activity**:
-   - Tap "Log New Activity".
-   - Select your name and activity category.
-   - Enter task details and attach a screenshot (optional).
-   - "Mark as Urgent" if the task requires immediate review.
-3. **Reporting Issues**:
-   - Tap "Report Issue".
-   - Provide a source (area/room) and category.
-   - Describe the problem and attach up to 3 evidence photos.
-4. **Monitoring Progress**: Check the "Live Feed" on the dashboard for status updates (Pending/Reviewed).
+## 🛡️ Security
+This app uses a **Hybrid Authentication Model**. Sheet data is accessed via a Google Service Account, while image uploads are handled via an authorized Web App bridge to ensure personal storage quotas are used correctly.
 
 ---
-Developed for Winners Chapel Manchester AV Team.
+*Created with ❤️ for WCM AV Team.*
